@@ -1,70 +1,100 @@
 package com.entity;
-import jakarta.persistence.*;
 
-	@Entity 
-	@Table(name="users")
-	public class User {
+import java.time.LocalDateTime;
 
-	    @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-	    private String name;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
-	    private String email;
+@Entity
+@Table(name = "users")
+public class User {
 
-	    private String password;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	    private String role;
+    @NotBlank(message = "Name cannot be empty")
+    private String name;
 
+    @NotBlank(message = "Email cannot be empty")
+    @Email(message = "Invalid email format")
+    @Column(unique = true)
+    private String email;
 
-	    public Long getId() {
-	        return id;
-	    }
+    @NotBlank(message = "Password cannot be empty")
+    @Pattern(
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$",
+        message = "Password must be at least 8 characters and contain uppercase, lowercase, digit and special character"
+    )
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
 
+    @NotBlank(message = "Role cannot be empty")
+    private String role;
 
-	    public void setId(Long id) {
-	        this.id = id;
-	    }
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
 
+    public User() {
+        this.createdDate = LocalDateTime.now();
+    }
 
-	    public String getName() {
-	        return name;
-	    }
+    // Getters and Setters
 
+    public Long getId() {
+        return id;
+    }
 
-	    public void setName(String name) {
-	        this.name = name;
-	    }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
+    public String getName() {
+        return name;
+    }
 
-	    public String getEmail() {
-	        return email;
-	    }
+    public void setName(String name) {
+        this.name = name;
+    }
 
+    public String getEmail() {
+        return email;
+    }
 
-	    public void setEmail(String email) {
-	        this.email = email;
-	    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
+    public String getPassword() {
+        return password;
+    }
 
-	    public String getPassword() {
-	        return password;
-	    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
+    public String getRole() {
+        return role;
+    }
 
-	    public void setPassword(String password) {
-	        this.password = password;
-	    }
+    public void setRole(String role) {
+        this.role = role;
+    }
 
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
 
-	    public String getRole() {
-	        return role;
-	    }
-
-
-	    public void setRole(String role) {
-	        this.role = role;
-	    }
-	}
-
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+}
