@@ -32,13 +32,12 @@ public class UserServiceImpl implements UserService {
     public String loginUser(String email, String password) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found."));
 
-        if (passwordEncoder.matches(password, user.getPassword())) {
-            return "Login Successful";
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Invalid Password");
         }
 
-        return "Invalid Password";
+        return "Login Successful";
     }
-
 }
