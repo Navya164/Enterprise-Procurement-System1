@@ -1,118 +1,37 @@
-package com.entity;
+package com.dto;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import com.entity.ComplianceStatus;
+import com.entity.SupplierStatus;
 
-@Entity
-@Table(name = "suppliers")
-public class Supplier {
+public class SupplierResponseDTO {
 
-    // ==========================
-    // Basic Information
-    // ==========================
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank(message = "Supplier name is required")
-    @Column(nullable = false)
     private String supplierName;
-
-    @NotBlank(message = "Company name is required")
-    @Column(nullable = false)
     private String companyName;
-
-    @NotBlank(message = "Contact person is required")
-    @Column(nullable = false)
     private String contactPerson;
-
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must contain exactly 10 digits")
-    @Column(nullable = false)
     private String phone;
-
-    @NotBlank(message = "Address is required")
-    @Column(nullable = false)
     private String address;
-
-    @NotBlank(message = "GST number is required")
-    @Column(nullable = false, unique = true)
     private String gstNumber;
-
-    @NotBlank(message = "Business type is required")
-    @Column(nullable = false)
     private String businessType;
-
-    // ==========================
-    // Profile Information
-    // ==========================
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SupplierStatus supplierStatus = SupplierStatus.ACTIVE;
-
-    @Column(nullable = false)
-    private LocalDate registrationDate = LocalDate.now();
-
+    private SupplierStatus supplierStatus;
+    private LocalDate registrationDate;
     private String remarks;
-
-    // ==========================
-    // Performance Monitoring
-    // ==========================
-
-    @Min(value = 0, message = "Quality score cannot be less than 0")
-    @Max(value = 100, message = "Quality score cannot exceed 100")
-    private Integer qualityScore = 0;
-
-    @Min(value = 0, message = "Delivery score cannot be less than 0")
-    @Max(value = 100, message = "Delivery score cannot exceed 100")
-    private Integer deliveryScore = 0;
-
-    @Min(value = 0, message = "Communication score cannot be less than 0")
-    @Max(value = 100, message = "Communication score cannot exceed 100")
-    private Integer communicationScore = 0;
-
-    private Double overallRating = 0.0;
-
-    private Integer totalOrders = 0;
-
-    // ==========================
-    // Compliance Tracking
-    // ==========================
-
-    private Boolean gstVerified = false;
-
-    private Boolean isoCertified = false;
-
-    private Boolean licenseValid = false;
-
-    @Enumerated(EnumType.STRING)
-    private ComplianceStatus complianceStatus = ComplianceStatus.PENDING;
-
+    private Integer qualityScore;
+    private Integer deliveryScore;
+    private Integer communicationScore;
+    private Double overallRating;
+    private Integer totalOrders;
+    private Boolean gstVerified;
+    private Boolean isoCertified;
+    private Boolean licenseValid;
+    private ComplianceStatus complianceStatus;
     private LocalDate lastComplianceCheck;
 
-    // ==========================
-    // Getters and Setters
-    // ==========================
+    public SupplierResponseDTO() {
+    }
 
     public Long getId() {
         return id;

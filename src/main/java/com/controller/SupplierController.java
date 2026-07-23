@@ -1,40 +1,49 @@
 package com.controller;
 
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import com.entity.Supplier;
+import com.dto.SupplierRequestDTO;
+import com.dto.SupplierResponseDTO;
 import com.service.SupplierService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/suppliers")
+@Validated
 public class SupplierController {
 
     @Autowired
-    private SupplierService service;
+    private SupplierService supplierService;
 
     @PostMapping
-    public Supplier addSupplier(@RequestBody Supplier supplier) {
-        return service.addSupplier(supplier);
+    public SupplierResponseDTO addSupplier(@Valid @RequestBody SupplierRequestDTO dto){
+        return supplierService.addSupplier(dto);
     }
 
     @GetMapping
-    public List<Supplier> getAllSuppliers() {
-        return service.getAllSuppliers();
+    public List<SupplierResponseDTO> getAllSuppliers(){
+        return supplierService.getAllSuppliers();
     }
+
+    @GetMapping("/{id}")
+    public SupplierResponseDTO getSupplierById(@PathVariable Long id){
+        return supplierService.getSupplierById(id);
+    }
+
     @PutMapping("/{id}")
-    public Supplier updateSupplier(@PathVariable Long id,
-            @RequestBody Supplier supplier) {
-
-        return service.updateSupplier(id, supplier);
+    public SupplierResponseDTO updateSupplier(@PathVariable Long id,
+                                              @Valid @RequestBody SupplierRequestDTO dto){
+        return supplierService.updateSupplier(id,dto);
     }
-    @DeleteMapping("/{id}")
-    public String deleteSupplier(@PathVariable Long id) {
 
-        service.deleteSupplier(id);
-        return "Supplier Deleted Successfully";
+    @DeleteMapping("/{id}")
+    public String deleteSupplier(@PathVariable Long id){
+        supplierService.deleteSupplier(id);
+        return "Supplier deleted successfully.";
     }
 }
