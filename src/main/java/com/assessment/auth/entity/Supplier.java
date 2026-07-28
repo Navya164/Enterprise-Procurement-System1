@@ -1,69 +1,125 @@
-package com.dto;
+package com.assessment.auth.entity;
 
-import com.entity.ComplianceStatus;
-import com.entity.SupplierStatus;
+import java.time.LocalDate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-public class SupplierRequestDTO {
+@Entity
+@Table(name = "suppliers")
+public class Supplier {
+
+    // ==========================
+    // Basic Information
+    // ==========================
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank(message = "Supplier name is required")
+    @Column(nullable = false)
     private String supplierName;
 
     @NotBlank(message = "Company name is required")
+    @Column(nullable = false)
     private String companyName;
 
     @NotBlank(message = "Contact person is required")
+    @Column(nullable = false)
     private String contactPerson;
 
     @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email")
+    @Email(message = "Invalid email format")
+    @Column(nullable = false, unique = true)
     private String email;
 
     @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be exactly 10 digits")
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must contain exactly 10 digits")
+    @Column(nullable = false)
     private String phone;
 
     @NotBlank(message = "Address is required")
+    @Column(nullable = false)
     private String address;
 
-    @NotBlank(message = "GST Number is required")
+    @NotBlank(message = "GST number is required")
+    @Column(nullable = false, unique = true)
     private String gstNumber;
 
-    @NotBlank(message = "Business Type is required")
+    @NotBlank(message = "Business type is required")
+    @Column(nullable = false)
     private String businessType;
 
-    private SupplierStatus supplierStatus;
+    // ==========================
+    // Profile Information
+    // ==========================
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SupplierStatus supplierStatus = SupplierStatus.ACTIVE;
+
+    @Column(nullable = false)
+    private LocalDate registrationDate = LocalDate.now();
 
     private String remarks;
 
-    @Min(0)
-    @Max(100)
-    private Integer qualityScore;
+    // ==========================
+    // Performance Monitoring
+    // ==========================
 
-    @Min(0)
-    @Max(100)
-    private Integer deliveryScore;
+    @Min(value = 0, message = "Quality score cannot be less than 0")
+    @Max(value = 100, message = "Quality score cannot exceed 100")
+    private Integer qualityScore = 0;
 
-    @Min(0)
-    @Max(100)
-    private Integer communicationScore;
+    @Min(value = 0, message = "Delivery score cannot be less than 0")
+    @Max(value = 100, message = "Delivery score cannot exceed 100")
+    private Integer deliveryScore = 0;
 
-    private Integer totalOrders;
+    @Min(value = 0, message = "Communication score cannot be less than 0")
+    @Max(value = 100, message = "Communication score cannot exceed 100")
+    private Integer communicationScore = 0;
 
-    private Boolean gstVerified;
+    private Double overallRating = 0.0;
 
-    private Boolean isoCertified;
+    private Integer totalOrders = 0;
 
-    private Boolean licenseValid;
+    // ==========================
+    // Compliance Tracking
+    // ==========================
 
-    private ComplianceStatus complianceStatus;
+    private Boolean gstVerified = false;
 
-    public SupplierRequestDTO() {
+    private Boolean isoCertified = false;
+
+    private Boolean licenseValid = false;
+
+    @Enumerated(EnumType.STRING)
+    private ComplianceStatus complianceStatus = ComplianceStatus.PENDING;
+
+    private LocalDate lastComplianceCheck;
+
+    // ==========================
+    // Getters and Setters
+    // ==========================
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getSupplierName() {
@@ -138,6 +194,14 @@ public class SupplierRequestDTO {
         this.supplierStatus = supplierStatus;
     }
 
+    public LocalDate getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDate registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
     public String getRemarks() {
         return remarks;
     }
@@ -168,6 +232,14 @@ public class SupplierRequestDTO {
 
     public void setCommunicationScore(Integer communicationScore) {
         this.communicationScore = communicationScore;
+    }
+
+    public Double getOverallRating() {
+        return overallRating;
+    }
+
+    public void setOverallRating(Double overallRating) {
+        this.overallRating = overallRating;
     }
 
     public Integer getTotalOrders() {
@@ -208,5 +280,13 @@ public class SupplierRequestDTO {
 
     public void setComplianceStatus(ComplianceStatus complianceStatus) {
         this.complianceStatus = complianceStatus;
+    }
+
+    public LocalDate getLastComplianceCheck() {
+        return lastComplianceCheck;
+    }
+
+    public void setLastComplianceCheck(LocalDate lastComplianceCheck) {
+        this.lastComplianceCheck = lastComplianceCheck;
     }
 }

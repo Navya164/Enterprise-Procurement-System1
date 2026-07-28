@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - User Authentication</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h2>User Registration</h2>
+
+        <form th:action="@{/register}" th:object="${registrationDTO}" method="post">
+
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" th:field="*{name}" placeholder="Enter your full name">
+                <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" th:field="*{email}" placeholder="Enter your email">
+                <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                <div class="error" th:if="${duplicateEmailError}" th:text="${duplicateEmailError}"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" th:field="*{password}" placeholder="Enter your password">
+                <div class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" th:field="*{role}">
+                    <option value="">-- Select Role --</option>
+                    <option th:each="roleItem : ${roles}"
+                            th:value="${roleItem}"
+                            th:text="${roleItem}">
+                    </option>
+                </select>
+                <div class="error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="links">
+            <a th:href="@{/login}">Already have an account? Login</a>
+            <a th:href="@{/}">Home</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,12 +1,11 @@
-package pms.service;
+package com.pms.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import pms.entity.ApprovalHierarchy;
-import pms.repository.ApprovalHierarchyRepository;
-import pms.service.*;
+import com.pms.entity.ApprovalHierarchy;
+import com.pms.repository.ApprovalHierarchyRepository;
 
 @Service
 public class ApprovalHierarchyServiceImpl implements ApprovalHierarchyService {

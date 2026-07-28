@@ -1,11 +1,11 @@
-package pms.controller;
+package com.pms.controller;
 
 import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
 
-import pms.entity.Department;
-import pms.service.DepartmentService;
+import com.pms.entity.Department;
+import com.pms.service.DepartmentService;
 
 
 @RestController

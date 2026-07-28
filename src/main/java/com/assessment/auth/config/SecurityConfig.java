@@ -8,19 +8,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.assessment.auth.security.CustomUserDetailsService;
-
 @Configuration
 public class SecurityConfig {
 
+	
+
+    @SuppressWarnings("deprecation")
 	@Bean
-	public UserDetailsService userDetailsService(
-	        CustomUserDetailsService customUserDetailsService) {
-
-	    return customUserDetailsService;
-	}
-
-    @Bean
     public DaoAuthenticationProvider authenticationProvider(
             UserDetailsService userDetailsService,
             BCryptPasswordEncoder passwordEncoder) {
@@ -37,36 +31,45 @@ public class SecurityConfig {
 
  
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            DaoAuthenticationProvider authenticationProvider)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
             throws Exception {
-    	http
-        .authenticationProvider(authenticationProvider)
 
-        .csrf(csrf -> csrf.disable())
+        http
+            .csrf(csrf -> csrf.disable())
 
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers(
-                    "/",
-                    "/register",
-                    "/login",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**"
-            ).permitAll()
-            .anyRequest().authenticated()
-        )
+            .authorizeHttpRequests(auth -> auth
+            		.requestMatchers(
+            		        "/",
+            		        "/login",
+            		        "/register",
+            		        "/test",
+            		        "/success",
+            		        "/error",
+            		        "/api/**",         
+            		        "/css/**",
+            		        "/js/**",
+            		        "/images/**"
+            		).permitAll()
 
-        .formLogin(form -> form
+                .anyRequest().authenticated()
+            )
+
+            .formLogin(form -> form
                 .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .usernameParameter("username")
+                .passwordParameter("password")
                 .defaultSuccessUrl("/success", true)
+                .failureUrl("/login?error=true")
                 .permitAll()
-        )
+            )
 
-        .logout(logout -> logout
+            .logout(logout -> logout
+                .logoutUrl("/logout")
                 .logoutSuccessUrl("/login")
-                .permitAll());
+                .permitAll()
+            );
+
 
         return http.build();
     }

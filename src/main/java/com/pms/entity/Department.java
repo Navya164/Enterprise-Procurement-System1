@@ -1,4 +1,4 @@
-package pms.entity;
+package com.pms.entity;
 
 import jakarta.persistence.*;
 

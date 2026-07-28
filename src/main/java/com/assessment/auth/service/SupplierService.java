@@ -1,4 +1,4 @@
-package com.service;
+package com.assessment.auth.service;
 
 // DTO-based SupplierService
 // (See chat for integration details.)
@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.dto.SupplierRequestDTO;
-import com.dto.SupplierResponseDTO;
-import com.entity.*;
-import com.exception.*;
-import com.mapper.SupplierMapper;
-import com.repository.SupplierRepository;
+import com.assessment.auth.dto.SupplierRequestDTO;
+import com.assessment.auth.dto.SupplierResponseDTO;
+import com.assessment.auth.entity.*;
+import com.assessment.auth.exception.*;
+import com.assessment.auth.mapper.SupplierMapper;
+import com.assessment.auth.repository.SupplierRepository;
 
 @Service
 public class SupplierService {

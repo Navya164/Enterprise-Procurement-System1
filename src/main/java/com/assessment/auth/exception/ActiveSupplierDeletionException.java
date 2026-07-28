@@ -1,4 +1,4 @@
-package com.exception;
+package com.assessment.auth.exception;
 
 public class ActiveSupplierDeletionException extends RuntimeException {
 

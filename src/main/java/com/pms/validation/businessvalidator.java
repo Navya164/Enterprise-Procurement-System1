@@ -1,6 +1,6 @@
-package pms.validation;
+package com.pms.validation;
 
-import pms.entity.Business;
+import com.pms.entity.Business;
 
 public class businessvalidator {
 

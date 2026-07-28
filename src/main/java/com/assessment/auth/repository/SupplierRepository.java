@@ -1,4 +1,4 @@
-package com.repository;
+package com.assessment.auth.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,9 +6,9 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.entity.ComplianceStatus;
-import com.entity.Supplier;
-import com.entity.SupplierStatus;
+import com.assessment.auth.entity.Supplier;
+import com.assessment.auth.entity.SupplierStatus;
+import com.assessment.auth.entity.ComplianceStatus;
 
 @Repository
 public interface SupplierRepository extends JpaRepository<Supplier, Long> {

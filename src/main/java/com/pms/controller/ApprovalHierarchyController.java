@@ -1,11 +1,11 @@
-package pms.controller;
+package com.pms.controller;
 
 import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
 
-import pms.entity.ApprovalHierarchy;
-import pms.service.ApprovalHierarchyService;
+import com.pms.entity.ApprovalHierarchy;
+import com.pms.service.ApprovalHierarchyService;
 
 @RestController
 @RequestMapping("/api/approval-hierarchy")

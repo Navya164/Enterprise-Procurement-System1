@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Success - User Authentication</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h2>Login Successful</h2>
+
+        <div class="user-info">
+            <p><strong>Name:</strong> <span th:text="${userName}"></span></p>
+            <p><strong>Role:</strong> <span th:text="${userRole}"></span></p>
+        </div>
+
+        <div class="links">
+            <a th:href="@{/login}">Login Again</a>
+            <a th:href="@{/}">Home</a>
+        </div>
+    </div>
+</body>
+</html>

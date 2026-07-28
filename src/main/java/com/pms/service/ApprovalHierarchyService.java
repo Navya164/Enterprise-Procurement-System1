@@ -1,8 +1,8 @@
-package pms.service;
+package com.pms.service;
 
 import java.util.List;
 
-import pms.entity.ApprovalHierarchy;
+import com.pms.entity.ApprovalHierarchy;
 
 public interface ApprovalHierarchyService {
 

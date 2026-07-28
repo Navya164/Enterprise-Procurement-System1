@@ -1,8 +1,8 @@
-package com.mapper;
+package com.assessment.auth.mapper;
 
-import com.dto.SupplierRequestDTO;
-import com.dto.SupplierResponseDTO;
-import com.entity.Supplier;
+import com.assessment.auth.dto.SupplierRequestDTO;
+import com.assessment.auth.dto.SupplierResponseDTO;
+import com.assessment.auth.entity.Supplier;
 
 public class SupplierMapper {
 

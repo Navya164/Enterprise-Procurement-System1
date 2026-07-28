@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - User Authentication</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome</h1>
+        <p>Mini User Authentication System</p>
+        <p>Register a new account or login with your email and password.</p>
+
+        <div class="links">
+            <a th:href="@{/register}">Register</a>
+            <a th:href="@{/login}">Login</a>
+        </div>
+    </div>
+</body>
+</html>

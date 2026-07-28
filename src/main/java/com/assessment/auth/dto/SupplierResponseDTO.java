@@ -1,9 +1,10 @@
-package com.dto;
+package com.assessment.auth.dto;
 
 import java.time.LocalDate;
 
-import com.entity.ComplianceStatus;
-import com.entity.SupplierStatus;
+import com.assessment.auth.entity.ComplianceStatus;
+import com.assessment.auth.entity.SupplierStatus;
+import com.assessment.auth.entity.Supplier;
 
 public class SupplierResponseDTO {
 

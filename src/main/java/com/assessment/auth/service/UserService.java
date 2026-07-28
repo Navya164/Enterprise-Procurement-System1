@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import com.assessment.auth.dto.LoginDTO;
 import com.assessment.auth.dto.RegistrationDTO;
 import com.assessment.auth.entity.User;
+import com.assessment.auth.exception.DuplicateUserException;
+import com.assessment.auth.exception.InvalidPasswordException;
+import com.assessment.auth.exception.UserNotFoundException;
 import com.assessment.auth.repository.UserRepository;
-import com.assessment.exception.DuplicateUserException;
-import com.assessment.exception.InvalidPasswordException;
-import com.assessment.exception.UserNotFoundException;
 
 /**
  * UserService contains registration and login business logic.
@@ -61,8 +61,11 @@ public class UserService {
      */
     public User loginUser(LoginDTO loginDTO) {
 
-        User user = userRepository.findByEmail(loginDTO.getEmail());
+        System.out.println("Email received: " + loginDTO.getEmail());
+        System.out.println("Password received: " + loginDTO.getPassword());
 
+        User user = userRepository.findByEmail(loginDTO.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         if (user == null) {
             throw new UserNotFoundException(
                     "User not found"

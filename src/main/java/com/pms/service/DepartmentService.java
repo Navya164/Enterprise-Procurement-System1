@@ -1,11 +1,11 @@
-package pms.service;
+package com.pms.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import pms.entity.Department;
-import pms.repository.DepartmentRepository;
+import com.pms.entity.Department;
+import com.pms.repository.DepartmentRepository;
 
 @Service
 public class DepartmentService {

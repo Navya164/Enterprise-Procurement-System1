@@ -1,4 +1,4 @@
-package com.controller;
+package com.assessment.auth.controller;
 
 import java.util.List;
 
@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import com.dto.SupplierRequestDTO;
-import com.dto.SupplierResponseDTO;
-import com.service.SupplierService;
+import com.assessment.auth.dto.SupplierRequestDTO;
+import com.assessment.auth.dto.SupplierResponseDTO;
+import com.assessment.auth.service.SupplierService;
 
 import jakarta.validation.Valid;
 

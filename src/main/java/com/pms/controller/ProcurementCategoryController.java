@@ -1,12 +1,12 @@
-package pms.controller;
+package com.pms.controller;
 
 
 import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
 
-import pms.entity.ProcurementCategory;
-import pms.service.ProcurementCategoryService;
+import com.pms.entity.ProcurementCategory;
+import com.pms.service.ProcurementCategoryService;
 
 
 

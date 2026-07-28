@@ -1,11 +1,11 @@
-package pms.service;
+package com.pms.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import pms.entity.ProcurementCategory;
-import pms.repository.ProcurementCategoryRepository;
+import com.pms.entity.ProcurementCategory;
+import com.pms.repository.ProcurementCategoryRepository;
 
 
 @Service

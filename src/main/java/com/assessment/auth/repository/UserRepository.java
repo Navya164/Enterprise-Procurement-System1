@@ -1,18 +1,16 @@
 package com.assessment.auth.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.assessment.auth.entity.User;
 
-/**
- * UserRepository talks to the users table in MySQL.
- * Spring Data JPA creates the SQL queries for us.
- */
+@Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // Find one user by email address
-    User findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
-    // Check if email already exists in database
     boolean existsByEmail(String email);
 }
