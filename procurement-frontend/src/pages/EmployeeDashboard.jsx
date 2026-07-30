@@ -8,16 +8,15 @@ function EmployeeDashboard() {
         description: "",
         amount: "",
         category: "",
-        priority: "NORMAL",
-        emergencyFlag: false
+        priority: "LOW"
     });
 
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
 
         setRequest({
             ...request,
-            [name]: type === "checkbox" ? checked : value
+            [name]: value
         });
     };
 
@@ -37,12 +36,12 @@ function EmployeeDashboard() {
                 description: "",
                 amount: "",
                 category: "",
-                priority: "NORMAL",
-                emergencyFlag: false
+                priority: "LOW"
             });
 
         } catch (error) {
 
+            console.error(error);
             alert("Unable to submit request");
 
         }
@@ -51,7 +50,7 @@ function EmployeeDashboard() {
 
     return (
 
-        <div style={{ padding: 30 }}>
+        <div style={{ padding: "30px" }}>
 
             <h2>Employee Dashboard</h2>
 
@@ -101,33 +100,15 @@ function EmployeeDashboard() {
                 value={request.priority}
                 onChange={handleChange}
             >
-
-                <option value="NORMAL">NORMAL</option>
-                <option value="EMERGENCY">EMERGENCY</option>
-
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
             </select>
 
             <br /><br />
 
-            <label>
-
-                <input
-                    type="checkbox"
-                    name="emergencyFlag"
-                    checked={request.emergencyFlag}
-                    onChange={handleChange}
-                />
-
-                Emergency Request
-
-            </label>
-
-            <br /><br />
-
             <button onClick={submitRequest}>
-
                 Submit Request
-
             </button>
 
         </div>

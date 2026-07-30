@@ -32,6 +32,7 @@ function App() {
         <Route path="/workflow" element={<WorkflowTracker />} />
 
         <Route path="/history" element={<ApprovalHistory />} />
+        
 
       </Routes>
     </BrowserRouter>

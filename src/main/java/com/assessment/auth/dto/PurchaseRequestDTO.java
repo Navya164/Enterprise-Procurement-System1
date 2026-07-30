@@ -24,13 +24,8 @@ public class PurchaseRequestDTO {
     @NotBlank(message = "Priority is required")
     private String priority;
 
-    // Emergency request feature
-    private Boolean emergencyFlag = false;
-
     public PurchaseRequestDTO() {
     }
-
-    // Getters and Setters
 
     public String getTitle() {
         return title;
@@ -70,13 +65,5 @@ public class PurchaseRequestDTO {
 
     public void setPriority(String priority) {
         this.priority = priority;
-    }
-
-    public Boolean getEmergencyFlag() {
-        return emergencyFlag;
-    }
-
-    public void setEmergencyFlag(Boolean emergencyFlag) {
-        this.emergencyFlag = emergencyFlag;
     }
 }

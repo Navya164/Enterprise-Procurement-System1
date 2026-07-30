@@ -158,11 +158,5 @@ public class PurchaseRequest {
         this.remarks = remarks;
     }
 
-    public Boolean getEmergencyFlag() {
-        return emergencyFlag;
-    }
-
-    public void setEmergencyFlag(Boolean emergencyFlag) {
-        this.emergencyFlag = emergencyFlag;
-    }
+   
 }
