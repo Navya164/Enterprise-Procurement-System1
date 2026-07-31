@@ -1,10 +1,8 @@
 package com.assessment.auth.dto;
 
-import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import java.math.BigDecimal;
 
 public class PurchaseRequestDTO {
 
@@ -14,9 +12,9 @@ public class PurchaseRequestDTO {
     @NotBlank(message = "Description is required")
     private String description;
 
-    @NotNull(message = "Amount is required")
-    @DecimalMin(value = "1.0", message = "Amount must be greater than 0")
-    private BigDecimal amount;
+    @NotNull(message = "Quantity is required")
+    @Min(value = 1, message = "Quantity must be greater than 0")
+    private Integer quantity;
 
     @NotBlank(message = "Category is required")
     private String category;
@@ -48,12 +46,12 @@ public class PurchaseRequestDTO {
         this.description = description;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
     public String getCategory() {

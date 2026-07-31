@@ -35,13 +35,14 @@ public class PurchaseRequestService {
         request.setEmployee(employee);
         request.setTitle(dto.getTitle());
         request.setDescription(dto.getDescription());
-        request.setAmount(dto.getAmount());
+        request.setQuantity(dto.getQuantity());
         request.setCategory(dto.getCategory());
         request.setPriority(Priority.valueOf(dto.getPriority()));
 
         request.setStatus(Status.PENDING_MANAGER);
         request.setCurrentLevel("MANAGER");
-        request.setEmergencyFlag(dto.getEmergencyFlag());
+
+        request.setEmergencyFlag(false);
 
         return purchaseRequestRepository.save(request);
     }
@@ -72,11 +73,19 @@ public class PurchaseRequestService {
         return purchaseRequestRepository.save(request);
     }
 
+    // Employee Dashboard
+    public List<PurchaseRequest> getEmployeeRequests(Long employeeId) {
+
+        User employee = userRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        return purchaseRequestRepository.findByEmployee(employee);
+    }
+
     // Manager Dashboard
     public List<PurchaseRequest> getPendingRequests() {
 
         return purchaseRequestRepository.findByStatus(Status.PENDING_MANAGER);
-
     }
 
     // Procurement Dashboard
@@ -93,7 +102,6 @@ public class PurchaseRequestService {
         );
 
         return requests;
-
     }
 
     // Start Procurement
@@ -106,7 +114,6 @@ public class PurchaseRequestService {
         request.setCurrentLevel("PROCUREMENT");
 
         return purchaseRequestRepository.save(request);
-
     }
 
     // Complete Procurement
@@ -119,7 +126,6 @@ public class PurchaseRequestService {
         request.setCurrentLevel("COMPLETED");
 
         return purchaseRequestRepository.save(request);
-
     }
 
     // Workflow Tracker
@@ -127,7 +133,6 @@ public class PurchaseRequestService {
 
         return purchaseRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Purchase Request not found"));
-
     }
 
 }

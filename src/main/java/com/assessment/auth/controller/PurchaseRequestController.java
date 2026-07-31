@@ -3,14 +3,7 @@ package com.assessment.auth.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.assessment.auth.dto.ApprovalDTO;
 import com.assessment.auth.dto.PurchaseRequestDTO;
@@ -30,6 +23,12 @@ public class PurchaseRequestController {
         this.purchaseRequestService = purchaseRequestService;
     }
 
+    // Test API
+    @GetMapping("/test")
+    public String test() {
+        return "Controller Working";
+    }
+
     // Employee creates purchase request
     @PostMapping("/create/{employeeId}")
     public ResponseEntity<PurchaseRequest> createRequest(
@@ -40,6 +39,16 @@ public class PurchaseRequestController {
                 purchaseRequestService.createRequest(employeeId, purchaseRequestDTO);
 
         return ResponseEntity.ok(request);
+    }
+
+    // Employee Dashboard - My Requests
+    @GetMapping("/myrequests/{employeeId}")
+    public ResponseEntity<List<PurchaseRequest>> getEmployeeRequests(
+            @PathVariable Long employeeId) {
+
+        return ResponseEntity.ok(
+                purchaseRequestService.getEmployeeRequests(employeeId)
+        );
     }
 
     // Manager approves/rejects
@@ -54,24 +63,22 @@ public class PurchaseRequestController {
         return ResponseEntity.ok(request);
     }
 
-    // Manager dashboard
+    // Manager Dashboard
     @GetMapping("/pending")
     public ResponseEntity<List<PurchaseRequest>> getPendingRequests() {
 
         return ResponseEntity.ok(
                 purchaseRequestService.getPendingRequests()
         );
-
     }
 
-    // Procurement dashboard
+    // Procurement Dashboard
     @GetMapping("/procurement")
     public ResponseEntity<List<PurchaseRequest>> getProcurementRequests() {
 
         return ResponseEntity.ok(
                 purchaseRequestService.getProcurementRequests()
         );
-
     }
 
     // Start Procurement
@@ -82,7 +89,6 @@ public class PurchaseRequestController {
         return ResponseEntity.ok(
                 purchaseRequestService.startProcurement(requestId)
         );
-
     }
 
     // Complete Procurement
@@ -93,7 +99,6 @@ public class PurchaseRequestController {
         return ResponseEntity.ok(
                 purchaseRequestService.completeProcurement(requestId)
         );
-
     }
 
     // Workflow Tracker
@@ -104,7 +109,5 @@ public class PurchaseRequestController {
         return ResponseEntity.ok(
                 purchaseRequestService.getRequestById(requestId)
         );
-
     }
-
 }

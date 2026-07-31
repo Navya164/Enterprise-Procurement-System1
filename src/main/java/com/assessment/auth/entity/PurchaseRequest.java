@@ -1,7 +1,6 @@
 package com.assessment.auth.entity;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,7 +20,7 @@ public class PurchaseRequest {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private BigDecimal amount;
+    private Integer quantity;
 
     private String category;
 
@@ -51,8 +50,6 @@ public class PurchaseRequest {
     public void prePersist() {
         createdDate = LocalDateTime.now();
     }
-
-    // Getters and Setters
 
     public Long getRequestId() {
         return requestId;
@@ -86,12 +83,12 @@ public class PurchaseRequest {
         this.description = description;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
     public String getCategory() {
