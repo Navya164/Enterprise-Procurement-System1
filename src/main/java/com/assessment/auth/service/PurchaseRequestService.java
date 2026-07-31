@@ -90,21 +90,25 @@ public class PurchaseRequestService {
     }
 
     // Procurement Dashboard
-    public List<PurchaseRequest> getProcurementRequests() {
+    // Procurement Dashboard
+public List<PurchaseRequest> getProcurementRequests() {
 
-        List<PurchaseRequest> requests = new ArrayList<>();
+    List<PurchaseRequest> requests = new ArrayList<>();
 
-        requests.addAll(
-                purchaseRequestRepository.findByStatus(Status.PENDING_PROCUREMENT)
-        );
+    requests.addAll(
+            purchaseRequestRepository.findByStatus(Status.PENDING_PROCUREMENT)
+    );
 
-        requests.addAll(
-                purchaseRequestRepository.findByStatus(Status.PROCUREMENT_IN_PROGRESS)
-        );
+    requests.addAll(
+            purchaseRequestRepository.findByStatus(Status.PROCUREMENT_IN_PROGRESS)
+    );
 
-        return requests;
-    }
+    requests.addAll(
+            purchaseRequestRepository.findByStatus(Status.COMPLETED)
+    );
 
+    return requests;
+}
     // Start Procurement
     public PurchaseRequest startProcurement(Long requestId) {
 
