@@ -78,13 +78,20 @@ function EmployeeDashboard() {
 
             loadRequests();
 
-        } catch (error) {
+        } catch(error){
 
-            console.error(error);
+    console.log(error);
 
-            alert("Unable to submit request");
+    if(error.response && error.response.data){
 
-        } finally {
+        alert(error.response.data.message || error.response.data);
+
+    } else {
+
+        alert("Unable to submit request");
+
+    }
+} finally {
 
             setLoading(false);
 
@@ -593,8 +600,8 @@ function EmployeeDashboard() {
                                     onChange={handleChange}
                                     placeholder="Enter Quantity"
                                 />
-                                <label className="form-label mt-3">
-                                 Amount
+                               <label className="form-label mt-3">
+                                     Estimated Amount
                                 </label>
                                     <input
                                         type="number"
@@ -608,22 +615,8 @@ function EmployeeDashboard() {
                                         placeholder="Enter Amount"
                                     />
                             </div>
-                            <label className="form-label mt-3">
-                                 Amount
-                        </label>
+                            
 
-                            <input
-                              type="number"
-                         className="form-control"
-                             placeholder="Enter estimated amount"
-                                value={request.amount || ""}
-                                 onChange={(e)=>
-                                       setRequest({
-                                          ...request,
-                                   amount:e.target.value
-        })
-    }
-/>
 
                             <div className="col-md-6 mb-4">
 
