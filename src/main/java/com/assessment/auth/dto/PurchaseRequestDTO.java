@@ -15,6 +15,8 @@ public class PurchaseRequestDTO {
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be greater than 0")
     private Integer quantity;
+    
+    private Double amount;
 
     @NotBlank(message = "Category is required")
     private String category;
@@ -22,8 +24,6 @@ public class PurchaseRequestDTO {
     @NotBlank(message = "Priority is required")
     private String priority;
 
-    // Emergency request feature
-    private Boolean emergencyFlag = false;
 
     public PurchaseRequestDTO() {
     }
@@ -69,12 +69,14 @@ public class PurchaseRequestDTO {
     public void setPriority(String priority) {
         this.priority = priority;
     }
-
-    public Boolean getEmergencyFlag() {
-        return emergencyFlag;
+    
+    public Double getAmount() {
+        return amount;
     }
 
-    public void setEmergencyFlag(Boolean emergencyFlag) {
-        this.emergencyFlag = emergencyFlag;
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
+
+   
 }

@@ -15,9 +15,11 @@ function EmployeeDashboard() {
         description: "",
         quantity: "",
         category: "",
+        amount: "",
         priority: "LOW",
-        emergencyFlag: false
+
     };
+    
 
     const [request, setRequest] = useState(emptyRequest);
     const [requests, setRequests] = useState([]);
@@ -64,7 +66,7 @@ function EmployeeDashboard() {
         try {
 
             setLoading(true);
-
+                console.log("Sending Request:", request);
             await axios.post(
                 `${API}/create/${employeeId}`,
                 request
@@ -591,8 +593,37 @@ function EmployeeDashboard() {
                                     onChange={handleChange}
                                     placeholder="Enter Quantity"
                                 />
-
+                                <label className="form-label mt-3">
+                                 Amount
+                                </label>
+                                    <input
+                                        type="number"
+                                        className="form-control form-control-lg"
+                                        style={{
+                                            borderRadius: "14px"
+                                        }}
+                                        name="amount"
+                                        value={request.amount}
+                                        onChange={handleChange}
+                                        placeholder="Enter Amount"
+                                    />
                             </div>
+                            <label className="form-label mt-3">
+                                 Amount
+                        </label>
+
+                            <input
+                              type="number"
+                         className="form-control"
+                             placeholder="Enter estimated amount"
+                                value={request.amount || ""}
+                                 onChange={(e)=>
+                                       setRequest({
+                                          ...request,
+                                   amount:e.target.value
+        })
+    }
+/>
 
                             <div className="col-md-6 mb-4">
 
@@ -620,44 +651,14 @@ function EmployeeDashboard() {
                                         HIGH
                                     </option>
 
-                                    <option value="EMERGENCY">
-                                        EMERGENCY
-                                    </option>
-
+                                   
                                 </select>
 
                             </div>
 
                         </div>
 
-                        <div
-                            className="form-check form-switch mb-4"
-                            style={{
-                                paddingLeft: "3rem"
-                            }}
-                        >
-
-                            <input
-                                className="form-check-input"
-                                style={{
-                                    width: "55px",
-                                    height: "28px"
-                                }}
-                                type="checkbox"
-                                id="emergencyFlag"
-                                name="emergencyFlag"
-                                checked={request.emergencyFlag}
-                                onChange={handleChange}
-                            />
-
-                            <label
-                                className="form-check-label fw-semibold"
-                                htmlFor="emergencyFlag"
-                            >
-                                Emergency Purchase Request
-                            </label>
-
-                        </div>
+                      
 
                         <div className="d-flex gap-3">
 
@@ -778,6 +779,8 @@ function EmployeeDashboard() {
 
                                         <th>Quantity</th>
 
+                                        <th>Amount</th>
+
                                         <th>Priority</th>
 
                                         <th>Status</th>
@@ -791,16 +794,13 @@ function EmployeeDashboard() {
                                     </tr>
 
                                 </thead>
-
-                                <tbody>                                    {filteredRequests.length === 0 ? (
-
+                                <tbody>                                   
+                                     {filteredRequests.length === 0 ? (
                                         <tr>
-
                                             <td
-                                                colSpan="7"
+                                                colSpan="8"
                                                 className="text-center py-5 text-muted"
                                             >
-
                                                 <div
                                                     style={{
                                                         fontSize: "60px"
@@ -808,40 +808,30 @@ function EmployeeDashboard() {
                                                 >
                                                     📦
                                                 </div>
-
                                                 <h5 className="mt-3">
                                                     No Purchase Requests Found
                                                 </h5>
-
                                                 <p className="mb-0">
                                                     Create your first purchase request to get started.
                                                 </p>
-
                                             </td>
-
                                         </tr>
-
                                     ) : (
-
                                         filteredRequests.map((r) => (
-
                                             <tr
                                                 key={r.requestId}
                                                 style={{
                                                     transition: "0.25s"
                                                 }}
                                             >
-
                                                 <td className="ps-4 fw-semibold">
                                                     {r.title}
                                                 </td>
-
                                                 <td>
                                                     {r.category}
                                                 </td>
-
                                                 <td>
-                                                    <span
+                                                <span
                                                         className="badge bg-light text-dark border"
                                                         style={{
                                                             fontSize: "14px",
@@ -851,6 +841,10 @@ function EmployeeDashboard() {
                                                         {r.quantity}
                                                     </span>
                                                 </td>
+
+                                                <td>
+                                                    ₹ {r.amount}
+                                                </td> 
 
                                                 <td>
 

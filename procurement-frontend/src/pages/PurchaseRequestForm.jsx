@@ -9,7 +9,7 @@ function PurchaseRequestForm() {
         amount: "",
         category: "",
         priority: "NORMAL",
-        emergencyFlag: false
+        
     });
 
     const handleChange = (e) => {
@@ -40,7 +40,7 @@ function PurchaseRequestForm() {
                 amount: "",
                 category: "",
                 priority: "NORMAL",
-                emergencyFlag: false
+                
             });
 
         } catch (error) {
@@ -101,26 +101,9 @@ function PurchaseRequestForm() {
                     onChange={handleChange}
                 >
                     <option value="NORMAL">Normal</option>
-                    <option value="EMERGENCY">Emergency</option>
+                    
                 </select>
 
-                <div className="form-check mb-3">
-
-                    <input
-                        type="checkbox"
-                        className="form-check-input"
-                        name="emergencyFlag"
-                        checked={request.emergencyFlag}
-                        onChange={handleChange}
-                    />
-
-                    <label className="form-check-label">
-
-                        Emergency Request
-
-                    </label>
-
-                </div>
 
                 <button className="btn btn-primary">
 

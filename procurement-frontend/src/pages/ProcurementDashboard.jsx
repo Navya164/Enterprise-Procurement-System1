@@ -101,8 +101,6 @@ function ProcurementDashboard() {
             case "HIGH":
                 return "warning";
 
-            case "EMERGENCY":
-                return "danger";
 
             default:
                 return "dark";

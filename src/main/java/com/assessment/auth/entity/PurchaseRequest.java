@@ -21,7 +21,9 @@ public class PurchaseRequest {
     private String description;
 
     private Integer quantity;
-
+    
+    private Double amount;
+    
     private String category;
 
     @Enumerated(EnumType.STRING)
@@ -41,7 +43,6 @@ public class PurchaseRequest {
     @Column(columnDefinition = "TEXT")
     private String remarks;
 
-    private Boolean emergencyFlag;
 
     public PurchaseRequest() {
     }
@@ -154,12 +155,14 @@ public class PurchaseRequest {
     public void setRemarks(String remarks) {
         this.remarks = remarks;
     }
-
-    public Boolean getEmergencyFlag() {
-        return emergencyFlag;
+    
+    public Double getAmount() {
+        return amount;
     }
 
-    public void setEmergencyFlag(Boolean emergencyFlag) {
-        this.emergencyFlag = emergencyFlag;
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
+  
+  
 }

@@ -37,12 +37,13 @@ public class PurchaseRequestService {
         request.setDescription(dto.getDescription());
         request.setQuantity(dto.getQuantity());
         request.setCategory(dto.getCategory());
+        request.setAmount(dto.getAmount());
         request.setPriority(Priority.valueOf(dto.getPriority()));
 
         request.setStatus(Status.PENDING_MANAGER);
         request.setCurrentLevel("MANAGER");
 
-        request.setEmergencyFlag(false);
+        
 
         return purchaseRequestRepository.save(request);
     }
