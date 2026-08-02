@@ -42,7 +42,14 @@ public class DepartmentController {
 
         return service.getDepartmentById(id);
     }
+    
+    @PutMapping("/{id}")
+    public Department updateDepartment(
+            @PathVariable Long id,
+            @RequestBody Department department){
 
+        return service.updateDepartment(id, department);
+    }
 
     @DeleteMapping("/{id}")
     public String deleteDepartment(

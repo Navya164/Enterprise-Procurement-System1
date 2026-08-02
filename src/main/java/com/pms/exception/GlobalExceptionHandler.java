@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,6 +64,20 @@ public class GlobalExceptionHandler {
                 request.getDescription(false)
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(
+            ResponseStatusException ex,
+            WebRequest request) {
+
+        ErrorResponse error = new ErrorResponse(
+                ex.getStatusCode().value(),
+                ex.getStatusCode().toString(),
+                List.of(ex.getReason()),
+                request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(error, ex.getStatusCode());
     }
 
     @ExceptionHandler(Exception.class)

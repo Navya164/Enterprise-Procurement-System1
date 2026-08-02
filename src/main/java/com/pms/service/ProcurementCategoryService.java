@@ -42,7 +42,22 @@ public class ProcurementCategoryService {
                 new RuntimeException("Category not found"));
     }
 
+    public ProcurementCategory updateCategory(
+            Long id,
+            ProcurementCategory category){
 
+        ProcurementCategory existing =
+                repository.findById(id)
+                .orElseThrow(() ->
+                new RuntimeException("Category not found"));
+
+        existing.setCategoryName(category.getCategoryName());
+        existing.setCategoryCode(category.getCategoryCode());
+        existing.setDescription(category.getDescription());
+
+        return repository.save(existing);
+    }
+    
     public void deleteCategory(Long id){
 
         repository.deleteById(id);

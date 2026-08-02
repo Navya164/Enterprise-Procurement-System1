@@ -15,8 +15,9 @@ function EmployeeDashboard() {
         description: "",
         quantity: "",
         category: "",
+        amount: "",
         priority: "LOW",
-        emergencyFlag: false
+        
     };
 
     const [request, setRequest] = useState(emptyRequest);
@@ -78,11 +79,23 @@ function EmployeeDashboard() {
 
         } catch (error) {
 
-            console.error(error);
+    console.log(error.response);
 
-            alert("Unable to submit request");
+    if (error.response?.data?.messages) {
 
-        } finally {
+        alert(error.response.data.messages[0]);
+
+    } else if (error.response?.data?.message) {
+
+        alert(error.response.data.message);
+
+    } else {
+
+        alert("Unable to submit request");
+
+    }
+
+} finally {
 
             setLoading(false);
 
@@ -550,6 +563,9 @@ function EmployeeDashboard() {
                                 placeholder="Category"
                             />
                         </div>
+
+                               
+
                         </div>
                                                 <div className="mb-4">
 
@@ -594,6 +610,25 @@ function EmployeeDashboard() {
 
                             </div>
 
+
+                            <div className="col-md-6 mb-4">
+
+                                <label className="form-label fw-semibold">
+                                    Amount (₹)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    className="form-control form-control-lg"
+                                    style={{ borderRadius: "14px" }}
+                                    name="amount"
+                                    value={request.amount}
+                                    onChange={handleChange}
+                                    placeholder="Enter Estimated Amount"
+                                />
+
+                            </div>
+
                             <div className="col-md-6 mb-4">
 
                                 <label className="form-label fw-semibold">
@@ -620,9 +655,7 @@ function EmployeeDashboard() {
                                         HIGH
                                     </option>
 
-                                    <option value="EMERGENCY">
-                                        EMERGENCY
-                                    </option>
+                                    
 
                                 </select>
 
@@ -637,25 +670,6 @@ function EmployeeDashboard() {
                             }}
                         >
 
-                            <input
-                                className="form-check-input"
-                                style={{
-                                    width: "55px",
-                                    height: "28px"
-                                }}
-                                type="checkbox"
-                                id="emergencyFlag"
-                                name="emergencyFlag"
-                                checked={request.emergencyFlag}
-                                onChange={handleChange}
-                            />
-
-                            <label
-                                className="form-check-label fw-semibold"
-                                htmlFor="emergencyFlag"
-                            >
-                                Emergency Purchase Request
-                            </label>
 
                         </div>
 
@@ -778,6 +792,8 @@ function EmployeeDashboard() {
 
                                         <th>Quantity</th>
 
+                                        <th>Amount (₹)</th>
+
                                         <th>Priority</th>
 
                                         <th>Status</th>
@@ -825,33 +841,37 @@ function EmployeeDashboard() {
 
                                         filteredRequests.map((r) => (
 
-                                            <tr
-                                                key={r.requestId}
-                                                style={{
-                                                    transition: "0.25s"
-                                                }}
-                                            >
+                                        <tr
+                                            key={r.requestId}
+                                            style={{
+                                                transition: "0.25s"
+                                            }}
+                                        >
 
-                                                <td className="ps-4 fw-semibold">
-                                                    {r.title}
-                                                </td>
+                                            <td className="ps-4 fw-semibold">
+                                                {r.title}
+                                            </td>
 
-                                                <td>
-                                                    {r.category}
-                                                </td>
+                                            <td>
+                                                {r.category}
+                                            </td>
 
-                                                <td>
-                                                    <span
-                                                        className="badge bg-light text-dark border"
-                                                        style={{
-                                                            fontSize: "14px",
-                                                            padding: "8px 12px"
-                                                        }}
-                                                    >
-                                                        {r.quantity}
-                                                    </span>
-                                                </td>
+                                            <td>
+                                                <span
+                                                    className="badge bg-light text-dark border"
+                                                    style={{
+                                                        fontSize: "14px",
+                                                        padding: "8px 12px"
+                                                    }}
+                                                >
+                                                    {r.quantity}
+                                                </span>
+                                            </td>
 
+                                            {/* NEW COLUMN */}
+                                            <td className="fw-semibold text-success">
+                                                ₹{r.amount}
+                                            </td>
                                                 <td>
 
                                                     <span
@@ -865,32 +885,11 @@ function EmployeeDashboard() {
                                                                 : "danger"
                                                         }`}
                                                         style={{
-                                                            padding:
-                                                                "8px 14px",
+                                                            padding: "8px 14px",
                                                             fontSize: "13px"
                                                         }}
                                                     >
                                                         {r.priority}
-                                                    </span>
-
-                                                </td>
-
-                                                <td>
-
-                                                    <span
-                                                        className={`badge rounded-pill bg-${getBadge(
-                                                            r.status
-                                                        )}`}
-                                                        style={{
-                                                            padding:
-                                                                "8px 14px",
-                                                            fontSize: "13px"
-                                                        }}
-                                                    >
-                                                        {r.status.replaceAll(
-                                                            "_",
-                                                            " "
-                                                        )}
                                                     </span>
 
                                                 </td>
@@ -912,6 +911,8 @@ function EmployeeDashboard() {
                                                     )}
 
                                                 </td>
+                                            
+                                                
 
                                                 <td className="pe-4">
 

@@ -61,4 +61,12 @@ public class ProcurementCategoryController {
 
         return "Category deleted successfully";
     }
+    
+    @PutMapping("/{id}")
+    public ProcurementCategory updateCategory(
+            @PathVariable Long id,
+            @RequestBody ProcurementCategory category){
+
+        return service.updateCategory(id, category);
+    }
 }
