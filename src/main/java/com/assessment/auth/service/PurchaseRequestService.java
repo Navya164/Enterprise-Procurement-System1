@@ -70,14 +70,12 @@ public class PurchaseRequestService {
         );
 
 
+
         request.setStatus(Status.PENDING_MANAGER);
         request.setCurrentLevel("MANAGER");
 
-
         return purchaseRequestRepository.save(request);
     }
-
-
 
     // Manager Approval
     public PurchaseRequest approveRequest(Long requestId,

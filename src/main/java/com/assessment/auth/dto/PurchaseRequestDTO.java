@@ -24,11 +24,8 @@ public class PurchaseRequestDTO {
     @NotBlank(message = "Priority is required")
     private String priority;
 
-
     public PurchaseRequestDTO() {
     }
-
-    // Getters and Setters
 
     public String getTitle() {
         return title;
@@ -69,6 +66,7 @@ public class PurchaseRequestDTO {
     public void setPriority(String priority) {
         this.priority = priority;
     }
+
     
     public Double getAmount() {
         return amount;
@@ -78,5 +76,5 @@ public class PurchaseRequestDTO {
         this.amount = amount;
     }
 
-   
+
 }

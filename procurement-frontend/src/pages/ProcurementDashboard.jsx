@@ -1,505 +1,184 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const API = "http://localhost:8080/api/purchase";
+import { useState } from "react";
 
 function ProcurementDashboard() {
 
-    const navigate = useNavigate();
-
-    const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        loadRequests();
-    }, []);
-
-    const loadRequests = async () => {
-
-        try {
-
-            const response = await axios.get(
-                `${API}/procurement`
-            );
-
-            setRequests(response.data);
-
-        } catch (error) {
-
-            console.error(error);
-            alert("Unable to load procurement requests.");
-
+    const [requests, setRequests] = useState([
+        {
+            id: 101,
+            title: "Dell Latitude Laptop",
+            amount: 75000,
+            category: "IT Equipment",
+            priority: "HIGH"
+        },
+        {
+            id: 102,
+            title: "Office Chairs",
+            amount: 30000,
+            category: "Furniture",
+            priority: "MEDIUM"
         }
+    ]);
+
+    const [purchaseOrder, setPurchaseOrder] = useState(null);
+
+    const createPurchaseOrder = (request) => {
+
+        setPurchaseOrder({
+            poNumber: "PO-2026-001",
+            supplier: "Dell Technologies",
+            item: request.title,
+            quantity: 1,
+            amount: request.amount,
+            orderDate: "30-Jul-2026",
+            expectedDelivery: "10-Aug-2026",
+            status: "ORDERED"
+        });
 
     };
 
-    const startProcurement = async (requestId) => {
+    const markDelivered = () => {
 
-        try {
-
-            setLoading(true);
-
-            await axios.put(
-                `${API}/procurement/start/${requestId}`
-            );
-
-            alert("Procurement Started Successfully!");
-
-            loadRequests();
-
-        } catch (error) {
-
-            console.error(error);
-            alert("Unable to start procurement.");
-
-        } finally {
-
-            setLoading(false);
-
-        }
+        setPurchaseOrder({
+            ...purchaseOrder,
+            status: "DELIVERED"
+        });
 
     };
 
-    const completeProcurement = async (requestId) => {
+    const completeProcurement = () => {
 
-        try {
+        alert("Procurement Completed Successfully!");
 
-            setLoading(true);
-
-            await axios.put(
-                `${API}/procurement/complete/${requestId}`
-            );
-
-            alert("Procurement Completed Successfully!");
-
-            loadRequests();
-
-        } catch (error) {
-
-            console.error(error);
-            alert("Unable to complete procurement.");
-
-        } finally {
-
-            setLoading(false);
-
-        }
+        setPurchaseOrder({
+            ...purchaseOrder,
+            status: "COMPLETED"
+        });
 
     };
-
-    const getPriorityBadge = (priority) => {
-
-        switch (priority) {
-
-            case "LOW":
-                return "secondary";
-
-            case "MEDIUM":
-                return "primary";
-
-            case "HIGH":
-                return "warning";
-
-
-            default:
-                return "dark";
-
-        }
-
-    };
-
-    const getStatusBadge = (status) => {
-
-        switch (status) {
-
-            case "PENDING_PROCUREMENT":
-                return "warning";
-
-            case "PROCUREMENT_IN_PROGRESS":
-                return "info";
-
-            case "COMPLETED":
-                return "success";
-
-            default:
-                return "secondary";
-
-        }
-
-    };
-
-    const pendingCount = requests.filter(
-        r => r.status === "PENDING_PROCUREMENT"
-    ).length;
-
-    const progressCount = requests.filter(
-        r => r.status === "PROCUREMENT_IN_PROGRESS"
-    ).length;
-
-    const completedCount = requests.filter(
-        r => r.status === "COMPLETED"
-    ).length;
 
     return (
 
-<>
-<div
-className="container-fluid py-4"
-style={{
-minHeight:"100vh",
-background:"linear-gradient(135deg,#eef5ff 0%,#f8fbff 50%,#ffffff 100%)"
-}}
->
-
-<div className="container">
-
-<div
-className="mb-4"
-style={{
-borderRadius:"24px",
-background:"linear-gradient(135deg,#0d6efd,#2563eb,#60a5fa)",
-color:"white",
-boxShadow:"0 20px 45px rgba(13,110,253,.25)"
-}}
->
-
-<div className="row align-items-center p-5">
-
-<div className="col-lg-8">
-
-<div
-style={{
-letterSpacing:"2px",
-opacity:.8,
-fontSize:"14px"
-}}
->
-ENTERPRISE PROCUREMENT SYSTEM
-</div>
-
-<h1 className="fw-bold mt-2">
-Procurement Dashboard
-</h1>
-
-<p
-className="mt-3 mb-0"
-style={{
-opacity:.9,
-maxWidth:"650px"
-}}
->
-Manage procurement workflow,
-track request progress,
-and complete purchasing efficiently.
-</p>
-
-</div>
+        <div className="container mt-4">
 
-<div className="col-lg-4 text-lg-end mt-4 mt-lg-0">
+            <h2 className="text-center mb-4">
+                Procurement Dashboard
+            </h2>
 
-<button
-className="btn btn-light btn-lg"
-style={{
-borderRadius:"50px",
-padding:"12px 35px",
-fontWeight:"600"
-}}
-onClick={()=>navigate("/")}
->
-Logout
-</button>
-
-</div>
-
-</div>
-
-</div><div className="row g-4 mb-5">
-
-<div className="col-md-4">
-
-<div
-className="card border-0 h-100"
-style={{
-borderRadius:"22px",
-boxShadow:"0 10px 25px rgba(0,0,0,.08)"
-}}
->
-
-<div className="card-body">
-
-<small className="text-muted fw-bold">
-PENDING
-</small>
+            <table className="table table-bordered table-striped">
 
-<h1 className="fw-bold text-warning mt-3">
-{pendingCount}
-</h1>
-
-</div>
-
-</div>
-
-</div>
-
-<div className="col-md-4">
+                <thead className="table-dark">
 
-<div
-className="card border-0 h-100"
-style={{
-borderRadius:"22px",
-boxShadow:"0 10px 25px rgba(0,0,0,.08)"
-}}
->
+                    <tr>
 
-<div className="card-body">
+                        <th>Request ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Priority</th>
+                        <th>Action</th>
 
-<small className="text-muted fw-bold">
-IN PROGRESS
-</small>
+                    </tr>
 
-<h1 className="fw-bold text-info mt-3">
-{progressCount}
-</h1>
+                </thead>
 
-</div>
+                <tbody>
 
-</div>
+                    {requests.map((req) => (
 
-</div>
+                        <tr key={req.id}>
 
-<div className="col-md-4">
+                            <td>{req.id}</td>
+                            <td>{req.title}</td>
+                            <td>{req.category}</td>
+                            <td>₹{req.amount}</td>
+                            <td>{req.priority}</td>
 
-<div
-className="card border-0 h-100"
-style={{
-borderRadius:"22px",
-boxShadow:"0 10px 25px rgba(0,0,0,.08)"
-}}
->
+                            <td>
 
-<div className="card-body">
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => createPurchaseOrder(req)}
+                                >
+                                    Create Purchase Order
+                                </button>
 
-<small className="text-muted fw-bold">
-COMPLETED
-</small>
+                            </td>
 
-<h1 className="fw-bold text-success mt-3">
-{completedCount}
-</h1>
+                        </tr>
 
-</div>
+                    ))}
 
-</div>
+                </tbody>
 
-</div>
+            </table>
 
-</div>
+            {purchaseOrder && (
 
-<div
-className="card border-0"
-style={{
-borderRadius:"24px",
-boxShadow:"0 18px 40px rgba(0,0,0,.08)"
-}}
->
+                <div className="card mt-5">
 
-<div
-className="card-header border-0"
-style={{
-background:
-"linear-gradient(90deg,#111827,#1f2937)",
-color:"white",
-borderTopLeftRadius:"24px",
-borderTopRightRadius:"24px",
-padding:"22px"
-}}
->
+                    <div className="card-header bg-success text-white">
 
-<h3 className="mb-0 fw-bold">
-Procurement Requests
-</h3>
+                        <h4>Purchase Order</h4>
 
-</div>
+                    </div>
 
-<div className="card-body">
+                    <div className="card-body">
 
-{
+                        <p><b>PO Number:</b> {purchaseOrder.poNumber}</p>
 
-requests.length===0?
+                        <p><b>Supplier:</b> {purchaseOrder.supplier}</p>
 
-(
+                        <p><b>Item:</b> {purchaseOrder.item}</p>
 
-<div
-className="alert alert-success text-center mb-0"
-style={{
-borderRadius:"16px",
-fontWeight:"600"
-}}
->
+                        <p><b>Quantity:</b> {purchaseOrder.quantity}</p>
 
-No Pending Procurement Requests 🎉
+                        <p><b>Amount:</b> ₹{purchaseOrder.amount}</p>
 
-</div>
+                        <p><b>Order Date:</b> {purchaseOrder.orderDate}</p>
 
-)
+                        <p><b>Expected Delivery:</b> {purchaseOrder.expectedDelivery}</p>
 
-:
+                        <p>
 
-requests.map((request)=>(
+                            <b>Status:</b>
 
-<div
-key={request.requestId}
-className="card border-0 mb-4"
-style={{
-borderRadius:"20px",
-boxShadow:"0 10px 30px rgba(0,0,0,.08)"
-}}
->
-
-<div className="card-body p-4">
-
-<div className="row">
-
-<div className="col-lg-8">
-
-<h3 className="fw-bold text-primary mb-3">
-{request.title}
-</h3>
+                            <span className="badge bg-warning text-dark ms-2">
+                                {purchaseOrder.status}
+                            </span>
 
-<p>
-<strong>Description :</strong>
-{" "}
-{request.description}
-</p>
-
-<p>
-<strong>Category :</strong>
-{" "}
-{request.category}
-</p>
-
-<p>
-<strong>Quantity :</strong>
-{" "}
-{request.quantity}
-</p>
-
-</div>
+                        </p>
 
-<div className="col-lg-4 text-lg-end">
+                        {purchaseOrder.status === "ORDERED" && (
 
-<div className="mb-3">
+                            <button
+                                className="btn btn-warning me-3"
+                                onClick={markDelivered}
+                            >
+                                Mark Delivered
+                            </button>
 
-<span
-className={`badge rounded-pill bg-${getPriorityBadge(request.priority)}`}
-style={{
-padding:"10px 18px",
-fontSize:"14px"
-}}
->
-{request.priority}
-</span>
+                        )}
 
-</div>
+                        {purchaseOrder.status === "DELIVERED" && (
 
-<div>
+                            <button
+                                className="btn btn-success"
+                                onClick={completeProcurement}
+                            >
+                                Complete Procurement
+                            </button>
 
-<span
-className={`badge rounded-pill bg-${getStatusBadge(request.status)}`}
-style={{
-padding:"10px 18px",
-fontSize:"14px"
-}}
->
-{request.status.replaceAll("_"," ")}
-</span>
+                        )}
 
-</div>
+                    </div>
 
-</div>
+                </div>
 
-</div>
+            )}
 
-<div className="d-flex gap-3 mt-4">{request.status === "PENDING_PROCUREMENT" && (
+        </div>
 
-<button
-className="btn btn-primary btn-lg"
-style={{
-borderRadius:"50px",
-padding:"12px 30px",
-fontWeight:"600"
-}}
-disabled={loading}
-onClick={()=>
-startProcurement(
-request.requestId
-)
-}
->
-🚀 Start Procurement
-</button>
-
-)}
-
-{request.status === "PROCUREMENT_IN_PROGRESS" && (
-
-<button
-className="btn btn-success btn-lg"
-style={{
-borderRadius:"50px",
-padding:"12px 30px",
-fontWeight:"600"
-}}
-disabled={loading}
-onClick={()=>
-completeProcurement(
-request.requestId
-)
-}
->
-✅ Complete Procurement
-</button>
-
-)}
-
-{request.status === "COMPLETED" && (
-
-<button
-className="btn btn-outline-success btn-lg"
-style={{
-borderRadius:"50px",
-padding:"12px 30px",
-fontWeight:"600"
-}}
-disabled
->
-✔ Procurement Completed
-</button>
-
-)}
-
-</div>
-
-</div>
-
-</div>
-
-))
-
-}
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</>
-
-);
+    );
 
 }
 

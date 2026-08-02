@@ -155,6 +155,7 @@ public class PurchaseRequest {
     public void setRemarks(String remarks) {
         this.remarks = remarks;
     }
+
     
     public Double getAmount() {
         return amount;
@@ -163,6 +164,5 @@ public class PurchaseRequest {
     public void setAmount(Double amount) {
         this.amount = amount;
     }
-  
-  
+
 }

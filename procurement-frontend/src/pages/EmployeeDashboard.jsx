@@ -15,6 +15,7 @@ function EmployeeDashboard() {
         description: "",
         quantity: "",
         category: "",
+<<<<<<< HEAD
         amount: "",
         priority: "LOW",
 
@@ -53,10 +54,17 @@ function EmployeeDashboard() {
     const handleChange = (e) => {
 
         const { name, value, type, checked } = e.target;
+=======
+        priority: "LOW"
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+>>>>>>> full-stack-version
 
         setRequest({
             ...request,
-            [name]: type === "checkbox" ? checked : value
+            [name]: value
         });
 
     };
@@ -74,10 +82,21 @@ function EmployeeDashboard() {
 
             alert("Purchase Request Submitted Successfully!");
 
+<<<<<<< HEAD
             setRequest(emptyRequest);
+=======
+            setRequest({
+                title: "",
+                description: "",
+                amount: "",
+                category: "",
+                priority: "LOW"
+            });
+>>>>>>> full-stack-version
 
             loadRequests();
 
+<<<<<<< HEAD
         } catch(error){
 
     console.log(error);
@@ -94,6 +113,10 @@ function EmployeeDashboard() {
 } finally {
 
             setLoading(false);
+=======
+            console.error(error);
+            alert("Unable to submit request");
+>>>>>>> full-stack-version
 
         }
 
@@ -101,7 +124,11 @@ function EmployeeDashboard() {
 
     const getBadge = (status) => {
 
+<<<<<<< HEAD
         switch (status) {
+=======
+        <div style={{ padding: "30px" }}>
+>>>>>>> full-stack-version
 
             case "PENDING_MANAGER":
                 return "warning";
@@ -195,10 +222,17 @@ function EmployeeDashboard() {
                     boxShadow: "0 20px 45px rgba(13,110,253,.25)"
                 }}
             >
+<<<<<<< HEAD
 
                 <div className="row align-items-center p-5">
 
                     <div className="col-lg-8">
+=======
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+            </select>
+>>>>>>> full-stack-version
 
                         <div
                             className="mb-2"
@@ -211,6 +245,7 @@ function EmployeeDashboard() {
                             ENTERPRISE PROCUREMENT SYSTEM
                         </div>
 
+<<<<<<< HEAD
                         <h1
                             className="fw-bold"
                             style={{
@@ -927,6 +962,11 @@ function EmployeeDashboard() {
                 </div>
 
             </div>
+=======
+            <button onClick={submitRequest}>
+                Submit Request
+            </button>
+>>>>>>> full-stack-version
 
         </div>
 

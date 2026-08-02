@@ -1,8 +1,9 @@
 package com.assessment.auth.entity;
 
 public enum Priority {
-	
-	LOW,
+
+    LOW,
     MEDIUM,
     HIGH
+
 }
