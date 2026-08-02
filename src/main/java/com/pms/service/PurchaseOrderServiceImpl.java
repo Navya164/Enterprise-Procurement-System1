@@ -1,21 +1,4 @@
-package com.pms.service.impl;
-
-import com.pms.dto.PurchaseOrderRequestDTO;
-import com.pms.dto.PurchaseOrderResponseDTO;
-import com.pms.dto.PurchaseOrderStatusUpdateDTO;
-import com.pms.dto.PurchaseOrderUpdateDTO;
-import com.pms.entity.PurchaseOrder;
-import com.pms.entity.PurchaseOrderStatus;
-import com.pms.entity.PurchaseRequest;
-import com.pms.entity.PurchaseRequestStatus;
-import com.pms.exception.InvalidPurchaseOrderStateException;
-import com.pms.exception.PurchaseRequestNotApprovedException;
-import com.pms.exception.ResourceNotFoundException;
-import com.pms.repository.PurchaseOrderRepository;
-import com.pms.repository.PurchaseRequestRepository;
-import com.pms.service.PurchaseOrderService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+package com.pms.service;
 
 import java.math.BigDecimal;
 import java.time.Year;
@@ -24,6 +7,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.assessment.auth.dto.PurchaseOrderRequestDTO;
+import com.assessment.auth.dto.PurchaseOrderResponseDTO;
+import com.assessment.auth.dto.PurchaseOrderStatusUpdateDTO;
+import com.assessment.auth.dto.PurchaseOrderUpdateDTO;
+import com.assessment.auth.entity.PurchaseRequest;
+import com.assessment.auth.entity.Status;
+import com.assessment.auth.repository.PurchaseRequestRepository;
+import com.pms.entity.PurchaseOrder;
+import com.pms.entity.PurchaseOrderStatus;
+import com.pms.exception.InvalidPurchaseOrderStateException;
+import com.pms.exception.PurchaseRequestNotApprovedException;
+import com.pms.exception.ResourceNotFoundException;
+import com.pms.repository.PurchaseOrderRepository;
 
 @Service
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
@@ -59,7 +59,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                         "PurchaseRequest not found with id: " + requestDTO.getPurchaseRequestId()));
 
         // 2. Business rule: PO can only be generated from an APPROVED PR
-        if (purchaseRequest.getStatus() != PurchaseRequestStatus.APPROVED) {
+        if (purchaseRequest.getStatus() != Status.APPROVED) {
             throw new PurchaseRequestNotApprovedException(
                     "Cannot create a Purchase Order: PurchaseRequest with id "
                             + requestDTO.getPurchaseRequestId() + " is not APPROVED");
@@ -166,7 +166,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         PurchaseOrderResponseDTO dto = new PurchaseOrderResponseDTO();
         dto.setId(po.getId());
         dto.setPoNumber(po.getPoNumber());
-        dto.setPurchaseRequestId(po.getPurchaseRequest().getId());
+        dto.setPurchaseRequestId(po.getPurchaseRequest().getRequestId());
         dto.setVendorName(po.getVendorName());
         dto.setVendorEmail(po.getVendorEmail());
         dto.setItemName(po.getItemName());

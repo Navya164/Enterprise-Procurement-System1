@@ -13,7 +13,7 @@ public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Lo
 
     List<PurchaseOrder> findByStatus(PurchaseOrderStatus status);
 
-    List<PurchaseOrder> findByPurchaseRequest_Id(Long purchaseRequestId);
+    List<PurchaseOrder> findByPurchaseRequest_RequestId(Long purchaseRequestId);
 
-    boolean existsByPurchaseRequest_Id(Long purchaseRequestId);
+    boolean existsByPurchaseRequest_RequestId(Long purchaseRequestId);
 }

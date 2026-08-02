@@ -1,11 +1,11 @@
 package com.pms.service;
 
-import com.pms.dto.PurchaseOrderRequestDTO;
-import com.pms.dto.PurchaseOrderResponseDTO;
-import com.pms.dto.PurchaseOrderStatusUpdateDTO;
-import com.pms.dto.PurchaseOrderUpdateDTO;
-
 import java.util.List;
+
+import com.assessment.auth.dto.PurchaseOrderRequestDTO;
+import com.assessment.auth.dto.PurchaseOrderResponseDTO;
+import com.assessment.auth.dto.PurchaseOrderStatusUpdateDTO;
+import com.assessment.auth.dto.PurchaseOrderUpdateDTO;
 
 /**
  * Interface defines WHAT the service does, not HOW.

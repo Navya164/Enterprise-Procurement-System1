@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.assessment.auth.entity.PurchaseRequest;
 
 /**
  * Entity mapped to the "purchase_orders" table.

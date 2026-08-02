@@ -1,4 +1,4 @@
-package com.pms.dto;
+package com.assessment.auth.dto;
 
 import com.pms.entity.PurchaseOrderStatus;
 import java.math.BigDecimal;

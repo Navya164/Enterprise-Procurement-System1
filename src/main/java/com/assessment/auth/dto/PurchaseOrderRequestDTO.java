@@ -1,4 +1,4 @@
-package com.pms.dto;
+package com.assessment.auth.dto;
 
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
