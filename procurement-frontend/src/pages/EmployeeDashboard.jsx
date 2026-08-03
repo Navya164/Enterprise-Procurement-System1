@@ -13,9 +13,9 @@ function EmployeeDashboard() {
     const emptyRequest = {
         title: "",
         description: "",
-        quantity: "",
+        quantity: "1",
         category: "",
-        amount: "",
+        amount: "0",
         priority: "LOW",
         
     };
@@ -243,19 +243,35 @@ function EmployeeDashboard() {
 
                     <div className="col-lg-4 text-lg-end mt-4 mt-lg-0">
 
-                        <button
-                            className="btn btn-light btn-lg"
-                            style={{
-                                borderRadius: "50px",
-                                padding: "12px 34px",
-                                fontWeight: "600"
-                            }}
-                            onClick={() => navigate("/")}
-                        >
-                            Logout
-                        </button>
+    <div className="d-flex justify-content-lg-end gap-2">
 
-                    </div>
+        <button
+            className="btn btn-outline-light btn-lg"
+            style={{
+                borderRadius: "50px",
+                padding: "12px 24px",
+                fontWeight: "600"
+            }}
+            onClick={() => navigate("/workflow")}
+        >
+            Workflow Tracker
+        </button>
+
+        <button
+            className="btn btn-light btn-lg"
+            style={{
+                borderRadius: "50px",
+                padding: "12px 34px",
+                fontWeight: "600"
+            }}
+            onClick={() => navigate("/")}
+        >
+            Logout
+        </button>
+
+    </div>
+
+</div>
 
                 </div>
 
@@ -785,6 +801,10 @@ function EmployeeDashboard() {
                                     <tr>
 
                                         <th className="ps-4">
+                                            Request ID
+                                        </th>
+
+                                        <th className="ps-4">
                                             Title
                                         </th>
 
@@ -803,70 +823,67 @@ function EmployeeDashboard() {
                                         <th className="pe-4">
                                             Created
                                         </th>
-
                                     </tr>
-
                                 </thead>
-
-                                <tbody>                                    {filteredRequests.length === 0 ? (
-
-                                        <tr>
-
-                                            <td
-                                                colSpan="7"
-                                                className="text-center py-5 text-muted"
-                                            >
-
-                                                <div
-                                                    style={{
-                                                        fontSize: "60px"
-                                                    }}
+                                <tbody> 
+                                 {filteredRequests.length === 0 ? (
+                                <tr>
+                                <td
+                                colSpan="7"
+                                className="text-center py-5 text-muted"
+                                     >
+                                  <div
+                                    style={{
+                                        fontSize: "60px"
+                                                }}
                                                 >
                                                     📦
                                                 </div>
-
                                                 <h5 className="mt-3">
                                                     No Purchase Requests Found
-                                                </h5>
-
-                                                <p className="mb-0">
-                                                    Create your first purchase request to get started.
-                                                </p>
-
-                                            </td>
-
-                                        </tr>
-
+                                         </h5>
+                                          <p className="mb-0">
+                                                Create your first purchase request to get started.
+                                            </p>
+                                     </td>
+                                    </tr>
                                     ) : (
 
                                         filteredRequests.map((r) => (
 
-                                        <tr
-                                            key={r.requestId}
-                                            style={{
-                                                transition: "0.25s"
-                                            }}
-                                        >
+                                                    <tr
+                                                        key={r.requestId}
+                                                        style={{
+                                                            transition: "0.25s"
+                                                        }}
+                                                    >
 
-                                            <td className="ps-4 fw-semibold">
-                                                {r.title}
-                                            </td>
+                                                        <td className="ps-4">
+                                                            <span className="badge bg-dark">
+                                                                #{r.requestId}
+                                                            </span>
+                                                        </td>
 
-                                            <td>
-                                                {r.category}
-                                            </td>
+                                                        <td className="fw-semibold">
+                                                            {r.title}
+                                                        </td>
 
-                                            <td>
-                                                <span
-                                                    className="badge bg-light text-dark border"
-                                                    style={{
-                                                        fontSize: "14px",
-                                                        padding: "8px 12px"
-                                                    }}
-                                                >
-                                                    {r.quantity}
-                                                </span>
-                                            </td>
+                                                        <td>
+                                                            {r.category}
+                                                        </td>
+
+                                                        <td>
+                                                            <span
+                                                                className="badge bg-light text-dark border"
+                                                                style={{
+                                                                    fontSize: "14px",
+                                                                    padding: "8px 12px"
+                                                                }}
+                                                            >
+                                                                {r.quantity}
+                                                            </span>
+                                                        </td>
+
 
                                             {/* NEW COLUMN */}
                                             <td className="fw-semibold text-success">
@@ -893,7 +910,29 @@ function EmployeeDashboard() {
                                                     </span>
 
                                                 </td>
-
+                                                <td>
+                                                <span
+                                                    className={`badge rounded-pill bg-${getBadge(r.status)}`}
+                                                    style={{
+                                                        padding: "8px 14px",
+                                                        fontSize: "13px"
+                                                    }}
+                                                >
+                                                    {
+                                                        r.status === "PENDING_MANAGER"
+                                                            ? "Pending Manager Approval"
+                                                            : r.status === "PENDING_PROCUREMENT"
+                                                            ? "Pending Procurement"
+                                                            : r.status === "PROCUREMENT_IN_PROGRESS"
+                                                            ? "Procurement In Progress"
+                                                            : r.status === "COMPLETED"
+                                                            ? "Completed"
+                                                            : r.status === "REJECTED"
+                                                            ? "Rejected"
+                                                            : r.status
+                                                    }
+                                                </span>
+                                            </td>
                                                 <td>
 
                                                     {r.remarks ? (

@@ -9,6 +9,11 @@ import AdminDashboard from "./pages/AdminDashboard";
 import PurchaseRequestForm from "./pages/PurchaseRequestForm";
 import WorkflowTracker from "./pages/WorkflowTracker";
 import ApprovalHistory from "./pages/ApprovalHistory";
+import ProcurementCategoryManagement from "./pages/ProcurementCategoryManagement";
+import DepartmentManagement from "./pages/DepartmentManagement";
+import ApprovalHierarchyManagement from "./pages/ApprovalHierarchyManagement";
+
+
 
 function App() {
   return (
@@ -26,6 +31,21 @@ function App() {
         <Route path="/procurement" element={<ProcurementDashboard />} />
 
         <Route path="/admin" element={<AdminDashboard />} />
+
+        <Route 
+    path="/admin/categories" 
+    element={<ProcurementCategoryManagement />} 
+        />
+
+        <Route 
+            path="/admin/departments" 
+            element={<DepartmentManagement />} 
+        />
+
+        <Route 
+            path="/admin/approval-hierarchy" 
+            element={<ApprovalHierarchyManagement />} 
+        />
 
         <Route path="/create-request" element={<PurchaseRequestForm />} />
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import {
@@ -26,7 +27,7 @@ function AdminDashboard() {
         completed: 0,
         rejected: 0
     });
-
+        const navigate = useNavigate();
     useEffect(() => {
         loadDashboard();
     }, []);
@@ -138,7 +139,45 @@ function AdminDashboard() {
             </div>
 
             <hr className="my-5" />
+            <div className="card shadow-sm border-0 mb-5">
 
+    <div className="card-header bg-dark text-white">
+
+        <h4 className="mb-0">
+            Procurement Master Data
+        </h4>
+
+    </div>
+
+    <div className="list-group list-group-flush">
+
+        <button
+            className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            onClick={() => navigate("/admin/categories")}
+        >
+            <span>📦 Procurement Categories</span>
+            <span>➜</span>
+        </button>
+
+        <button
+            className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            onClick={() => navigate("/admin/departments")}
+        >
+            <span>🏢 Department Management</span>
+            <span>➜</span>
+        </button>
+
+        <button
+            className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            onClick={() => navigate("/admin/approval-hierarchy")}
+        >
+            <span>👥 Approval Hierarchy</span>
+            <span>➜</span>
+        </button>
+
+    </div>
+
+</div>
             <h3 className="text-center mb-4">
                 Procurement Analytics
             </h3>
