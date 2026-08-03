@@ -27,16 +27,51 @@ public class ApprovalHierarchyServiceImpl implements ApprovalHierarchyService {
     }
 
     @Override
-    public ApprovalHierarchy saveApprovalHierarchy(ApprovalHierarchy approvalHierarchy) {
+    public ApprovalHierarchy saveApprovalHierarchy(
+            ApprovalHierarchy approvalHierarchy) {
+
+        if (repository.existsByDepartmentAndApprovalLevel(
+                approvalHierarchy.getDepartment(),
+                approvalHierarchy.getApprovalLevel())) {
+
+            throw new RuntimeException(
+                    "Approval level already exists for this department"
+            );
+
+        }
+
         return repository.save(approvalHierarchy);
     }
 
     @Override
-    public ApprovalHierarchy updateApprovalHierarchy(Long id, ApprovalHierarchy approvalHierarchy) {
-        approvalHierarchy.setId(id);
-        return repository.save(approvalHierarchy);
-    }
+    public ApprovalHierarchy updateApprovalHierarchy(
+            Long id,
+            ApprovalHierarchy approvalHierarchy) {
 
+        ApprovalHierarchy existing =
+                repository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException("Approval hierarchy not found"));
+
+        if ((!existing.getDepartment().equals(approvalHierarchy.getDepartment())
+                || !existing.getApprovalLevel().equals(approvalHierarchy.getApprovalLevel()))
+                && repository.existsByDepartmentAndApprovalLevel(
+                        approvalHierarchy.getDepartment(),
+                        approvalHierarchy.getApprovalLevel())) {
+
+            throw new RuntimeException(
+                    "Approval level already exists for this department"
+            );
+        }
+
+        existing.setDepartment(approvalHierarchy.getDepartment());
+        existing.setApproverName(approvalHierarchy.getApproverName());
+        existing.setApproverRole(approvalHierarchy.getApproverRole());
+        existing.setApprovalLevel(approvalHierarchy.getApprovalLevel());
+
+        return repository.save(existing);
+    }
+    
     @Override
     public void deleteApprovalHierarchy(Long id) {
         repository.deleteById(id);

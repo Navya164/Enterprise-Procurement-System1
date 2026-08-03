@@ -23,23 +23,43 @@ public class DepartmentService {
 
 
     public Department saveDepartment(Department department) {
+
+
+        if(repository.existsByDepartmentCode(
+                department.getDepartmentCode())){
+
+
+            throw new RuntimeException(
+                "Department code already exists"
+            );
+
+        }
+
+
         return repository.save(department);
+
     }
-
-
     public Department getDepartmentById(Long id) {
+
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Department not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("Department not found"));
     }
-    
     public Department updateDepartment(
             Long id,
-            Department department){
+            Department department) {
 
         Department existing =
                 repository.findById(id)
-                .orElseThrow(() ->
-                new RuntimeException("Department not found"));
+                        .orElseThrow(() ->
+                                new RuntimeException("Department not found"));
+
+        if (!existing.getDepartmentCode().equals(department.getDepartmentCode())
+                && repository.existsByDepartmentCode(department.getDepartmentCode())) {
+
+            throw new RuntimeException("Department code already exists");
+
+        }
 
         existing.setDepartmentName(department.getDepartmentName());
         existing.setDepartmentCode(department.getDepartmentCode());
