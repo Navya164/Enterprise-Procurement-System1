@@ -24,6 +24,7 @@ public class PurchaseOrderResponseDTO {
     private LocalDate expectedDeliveryDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Integer deliveredQuantity;
 
     public Long getId() {
         return id;
@@ -128,4 +129,13 @@ public class PurchaseOrderResponseDTO {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+	public Integer getDeliveredQuantity() {
+		return deliveredQuantity;
+	}
+
+	public void setDeliveredQuantity(Integer deliveredQuantity) {
+		this.deliveredQuantity = deliveredQuantity;
+	}
+    
 }

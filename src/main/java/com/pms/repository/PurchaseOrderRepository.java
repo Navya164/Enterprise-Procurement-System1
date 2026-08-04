@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Long> {
 
     Optional<PurchaseOrder> findByPoNumber(String poNumber);
+    
 
     List<PurchaseOrder> findByStatus(PurchaseOrderStatus status);
 
