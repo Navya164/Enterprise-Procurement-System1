@@ -59,7 +59,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                         "PurchaseRequest not found with id: " + requestDTO.getPurchaseRequestId()));
 
         // 2. Business rule: PO can only be generated from an APPROVED PR
-        if (purchaseRequest.getStatus() != Status.APPROVED) {
+        if (purchaseRequest.getStatus() != Status.PENDING_PROCUREMENT) {
             throw new PurchaseRequestNotApprovedException(
                     "Cannot create a Purchase Order: PurchaseRequest with id "
                             + requestDTO.getPurchaseRequestId() + " is not APPROVED");
