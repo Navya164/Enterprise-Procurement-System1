@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import VendorDashboard from "./pages/VendorDashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
@@ -29,6 +30,11 @@ function App() {
         <Route path="/manager" element={<ManagerDashboard />} />
 
         <Route path="/procurement" element={<ProcurementDashboard />} />
+
+        <Route 
+    path="/vendor" 
+    element={<VendorDashboard />} 
+/>
 
         <Route path="/admin" element={<AdminDashboard />} />
 
