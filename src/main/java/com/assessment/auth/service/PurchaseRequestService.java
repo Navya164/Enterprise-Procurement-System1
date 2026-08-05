@@ -141,12 +141,7 @@ public class PurchaseRequestService {
                 Status.PENDING_MANAGER
         );
     }
-
-
-
-
-
-    // Procurement Dashboard
+  // Procurement Dashboard
     public List<PurchaseRequest> getProcurementRequests() {
 
 
@@ -165,21 +160,14 @@ public class PurchaseRequestService {
                         Status.PROCUREMENT_IN_PROGRESS
                 )
         );
-
-
         requests.addAll(
                 purchaseRequestRepository.findByStatus(
-                        Status.COMPLETED
+                    Status.COMPLETED
                 )
-        );
-
+            );
 
         return requests;
     }
-
-
-
-
 
     // Start Procurement
     public PurchaseRequest startProcurement(Long requestId) {
@@ -228,9 +216,6 @@ public class PurchaseRequestService {
 
         return purchaseRequestRepository.save(request);
     }
-
-
-
 
 
     // Workflow Tracker

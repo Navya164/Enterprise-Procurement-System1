@@ -75,6 +75,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
             PurchaseOrderStatus.PARTIALLY_DELIVERED,
             Set.of(
+            	PurchaseOrderStatus.PARTIALLY_DELIVERED,
                 PurchaseOrderStatus.DELIVERED
             ),
 
@@ -315,12 +316,23 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
         }
 
-        if(target == PurchaseOrderStatus.DELIVERED){
+        if (target == PurchaseOrderStatus.DELIVERED) {
 
             po.setDeliveredQuantity(po.getQuantity());
 
             po.setStatus(PurchaseOrderStatus.DELIVERED);
 
+            PurchaseRequest request = po.getPurchaseRequest();
+
+            request.setStatus(Status.COMPLETED);
+
+            request.setCurrentLevel("COMPLETED");
+
+            purchaseRequestRepository.save(request);
+
+            return toResponseDTO(
+                    purchaseOrderRepository.save(po)
+            );
         }
 
 
@@ -328,18 +340,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         po.setStatus(target);
         PurchaseOrder updated =
                 purchaseOrderRepository.save(po);
-
-
-        // If PO is closed, complete the Purchase Request
-        if(target == PurchaseOrderStatus.CLOSED){
-
-            PurchaseRequest request = po.getPurchaseRequest();
-
-            request.setStatus(Status.COMPLETED);
-
-            purchaseRequestRepository.save(request);
-        }
-
 
         return toResponseDTO(updated);
         
