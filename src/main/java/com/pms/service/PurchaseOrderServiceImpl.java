@@ -288,6 +288,14 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
             }
 
+            if(dto.getDeliveredQuantity() <= 0){
+
+            throw new InvalidPurchaseOrderStateException(
+                "Delivered quantity must be greater than zero"
+            );
+
+}
+
             int delivered =
                     po.getDeliveredQuantity()
                     +
@@ -311,11 +319,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
             po.setDeliveredQuantity(po.getQuantity());
 
-            po.setStatus(PurchaseOrderStatus.CLOSED);
+            po.setStatus(PurchaseOrderStatus.DELIVERED);
 
-            return toResponseDTO(
-                    purchaseOrderRepository.save(po)
-            );
         }
 
 
@@ -328,8 +333,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         // If PO is closed, complete the Purchase Request
         if(target == PurchaseOrderStatus.CLOSED){
 
-            PurchaseRequest request =
-                    po.getPurchaseRequest();
+            PurchaseRequest request = po.getPurchaseRequest();
 
             request.setStatus(Status.COMPLETED);
 
