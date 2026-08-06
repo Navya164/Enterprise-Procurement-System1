@@ -56,10 +56,11 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             ),
 
             PurchaseOrderStatus.SENT,
-            Set.of(
-                PurchaseOrderStatus.ACCEPTED,
-                PurchaseOrderStatus.CANCELLED
-            ),
+Set.of(
+    PurchaseOrderStatus.ACCEPTED,
+    PurchaseOrderStatus.REJECTED,
+    PurchaseOrderStatus.CANCELLED
+),
 
             PurchaseOrderStatus.ACCEPTED,
             Set.of(
@@ -86,6 +87,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
             PurchaseOrderStatus.CLOSED,
             Set.of(),
+            PurchaseOrderStatus.REJECTED,
+Set.of(),
 
             PurchaseOrderStatus.CANCELLED,
             Set.of()
@@ -336,6 +339,16 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
 
         po.setStatus(target);
+
+        if (target == PurchaseOrderStatus.REJECTED) {
+
+    PurchaseRequest request = po.getPurchaseRequest();
+
+    request.setStatus(Status.PENDING_PROCUREMENT);
+
+    purchaseRequestRepository.save(request);
+
+}
 
 
         if (target == PurchaseOrderStatus.CLOSED) {

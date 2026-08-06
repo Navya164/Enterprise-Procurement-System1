@@ -24,17 +24,23 @@ public class VendorController {
 
 
     @GetMapping("/orders")
-    public List<PurchaseOrderResponseDTO> getVendorOrders(){
+public List<PurchaseOrderResponseDTO> getVendorOrders() {
 
-        return purchaseOrderService
-                .getAllPurchaseOrders()
-                .stream()
-                .filter(po ->
-                po.getStatus()==PurchaseOrderStatus.SENT
-                ||
-                po.getStatus()==PurchaseOrderStatus.ACCEPTED
-        )
-                .toList();
-    }
+    return purchaseOrderService
+            .getAllPurchaseOrders()
+            .stream()
+            .filter(po ->
+                    po.getStatus() == PurchaseOrderStatus.SENT ||
+                    po.getStatus() == PurchaseOrderStatus.ACCEPTED ||
+                    po.getStatus() == PurchaseOrderStatus.SHIPPED ||
+                    po.getStatus() == PurchaseOrderStatus.PARTIALLY_DELIVERED ||
+                    po.getStatus() == PurchaseOrderStatus.DELIVERED ||
+                    po.getStatus() == PurchaseOrderStatus.CLOSED ||
+                    po.getStatus() == PurchaseOrderStatus.REJECTED ||
+                    po.getStatus() == PurchaseOrderStatus.CANCELLED
+            )
+            .toList();
+
+}
 
 }

@@ -13,7 +13,7 @@ import ApprovalHistory from "./pages/ApprovalHistory";
 import ProcurementCategoryManagement from "./pages/ProcurementCategoryManagement";
 import DepartmentManagement from "./pages/DepartmentManagement";
 import ApprovalHierarchyManagement from "./pages/ApprovalHierarchyManagement";
-
+import VendorManagement from "./pages/VendorManagement";
 
 
 function App() {
@@ -35,6 +35,10 @@ function App() {
 />
 
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route
+    path="/admin/vendors"
+    element={<VendorManagement />}
+/>
 
         <Route 
     path="/admin/categories" 
