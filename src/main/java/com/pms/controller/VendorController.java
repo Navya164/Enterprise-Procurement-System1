@@ -3,7 +3,7 @@ package com.pms.controller;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
-
+import com.pms.entity.PurchaseOrderStatus;
 import com.assessment.auth.dto.PurchaseOrderResponseDTO;
 import com.pms.service.PurchaseOrderService;
 
@@ -29,9 +29,11 @@ public class VendorController {
         return purchaseOrderService
                 .getAllPurchaseOrders()
                 .stream()
-                .filter(po -> 
-                    po.getStatus().name()
-                    .equals("SENT"))
+                .filter(po ->
+                po.getStatus()==PurchaseOrderStatus.SENT
+                ||
+                po.getStatus()==PurchaseOrderStatus.ACCEPTED
+        )
                 .toList();
     }
 

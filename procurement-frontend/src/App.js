@@ -31,9 +31,7 @@ function App() {
 
         <Route path="/procurement" element={<ProcurementDashboard />} />
 
-        <Route 
-    path="/vendor" 
-    element={<VendorDashboard />} 
+        <Route path="/vendor" element={<VendorDashboard />} 
 />
 
         <Route path="/admin" element={<AdminDashboard />} />

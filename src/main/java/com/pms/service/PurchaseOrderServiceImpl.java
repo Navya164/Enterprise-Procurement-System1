@@ -108,6 +108,17 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     "Purchase Request not found")
                 );
         
+        System.out.println("========== DEBUG ==========");
+        System.out.println("Request ID: " + requestDTO.getPurchaseRequestId());
+        System.out.println("Request Status: " + request.getStatus());
+
+        boolean exists = purchaseOrderRepository
+                .existsByPurchaseRequest_RequestId(
+                        requestDTO.getPurchaseRequestId());
+
+        System.out.println("PO Exists: " + exists);
+        System.out.println("===========================");
+        
      // Prevent duplicate Purchase Orders for same Purchase Request
         if (purchaseOrderRepository
                 .existsByPurchaseRequest_RequestId(
@@ -119,14 +130,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
 
 
-
-        if(request.getStatus()!=Status.PENDING_PROCUREMENT){
+        if(request.getStatus()!=Status.PROCUREMENT_IN_PROGRESS){
 
             throw new PurchaseRequestNotApprovedException(
-            		"Purchase Order already exists or procurement is already in progress"
+                "Purchase request is not ready for purchase order generation"
             );
         }
-
+        
 
 
         PurchaseOrder po = new PurchaseOrder();
@@ -171,9 +181,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         PurchaseOrder saved =
                 purchaseOrderRepository.save(po);
 
-        // Move the Purchase Request to Procurement In Progress
-        request.setStatus(Status.PROCUREMENT_IN_PROGRESS);
-        purchaseRequestRepository.save(request);
+        
 
         return toResponseDTO(saved);
 
@@ -322,30 +330,32 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
             po.setStatus(PurchaseOrderStatus.DELIVERED);
 
-            PurchaseRequest request = po.getPurchaseRequest();
-
-            request.setStatus(Status.COMPLETED);
-
-            request.setCurrentLevel("COMPLETED");
-
-            purchaseRequestRepository.save(request);
-
             return toResponseDTO(
                     purchaseOrderRepository.save(po)
             );
         }
 
-
-
         po.setStatus(target);
+
+
+        if (target == PurchaseOrderStatus.CLOSED) {
+
+            PurchaseRequest request = po.getPurchaseRequest();
+
+            request.setStatus(Status.COMPLETED);
+
+            purchaseRequestRepository.save(request);
+
+        }
+
+
         PurchaseOrder updated =
                 purchaseOrderRepository.save(po);
 
+
         return toResponseDTO(updated);
-        
 
-    }
-
+        }
     @Override
     @Transactional
     public void deletePurchaseOrder(Long id){

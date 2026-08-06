@@ -53,7 +53,7 @@ function ProcurementDashboard() {
             const response = await axios.get(
                 `${API}/procurement`
             );
-
+               console.log("PROCUREMENT DATA:", response.data);
             setRequests(response.data);
 
         } catch (error) {
@@ -91,6 +91,8 @@ function ProcurementDashboard() {
     try {
 
         const response = await axios.get(PURCHASE_ORDER_API);
+
+         console.log(response.data);
 
         setPurchaseOrders(response.data);
 
@@ -145,10 +147,11 @@ function ProcurementDashboard() {
 
         });
 
+            alert("Purchase Order Generated Successfully!");
 
-        alert("Purchase Order Generated Successfully!");
-
-        loadPurchaseOrders();
+            await loadPurchaseOrders();
+            await loadRequests();
+      
 
 
     } catch (error) {
@@ -202,7 +205,17 @@ function ProcurementDashboard() {
             
 
                 };
-
+                const availableRequests = requests.filter(
+    request =>
+        (
+            request.status === "PENDING_PROCUREMENT" ||
+            request.status === "PROCUREMENT_IN_PROGRESS"
+        )
+        &&
+        !purchaseOrders.some(
+            po => po.purchaseRequestId === request.requestId
+        )
+);
 
     
 
@@ -466,7 +479,7 @@ function ProcurementDashboard() {
 
                 :
 
-                requests.map((request)=>(
+                availableRequests.map((request)=>(
                     
 
                 <div
@@ -490,14 +503,14 @@ function ProcurementDashboard() {
 
                 {request.status === "PENDING_PROCUREMENT" && (
 
-            <button
-                className="btn btn-warning mt-3"
-                onClick={() => startProcurement(request.requestId)}
-            >
-                Start Procurement
-            </button>
+    <button
+        className="btn btn-primary"
+        onClick={() => startProcurement(request.requestId)}
+    >
+        Start Procurement
+    </button>
 
-        )}
+)}
 
                         <p>
                 <strong>Description :</strong>
@@ -552,11 +565,9 @@ function ProcurementDashboard() {
                 </div>
 
                 </div>
-        <div className="d-flex gap-3 mt-4">
+       {/* Purchase Order Form */}
 
-  {/* Purchase Order Form */}
 {request.status === "PROCUREMENT_IN_PROGRESS" && (
-
     <div className="w-100">
 
         <div className="row g-3 mb-3">
@@ -624,6 +635,16 @@ function ProcurementDashboard() {
                     }
                 />
 
+                <p className="mt-2">
+    <strong>Total Amount:</strong> ₹
+    {
+        (
+            Number(poData[request.requestId]?.unitPrice || 0) *
+            Number(request.quantity || 0)
+        ).toFixed(2)
+    }
+</p>
+
             </div>
 
             {/* Expected Delivery Date */}
@@ -678,7 +699,7 @@ function ProcurementDashboard() {
 
             </div>
 
-            </div>
+            
 
             </div>
 
@@ -840,6 +861,15 @@ function ProcurementDashboard() {
 </div>
 
 )}
+
+            {po.status === "DELIVERED" && (
+                    <button
+                        className="btn btn-success mt-3 me-2"
+                        onClick={() => updateStatus(po.id, "CLOSED")}
+                    >
+                        Close Order
+                    </button>
+                )}
 
                 {po.status === "CLOSED" && (
     <span className="badge bg-success mt-3">

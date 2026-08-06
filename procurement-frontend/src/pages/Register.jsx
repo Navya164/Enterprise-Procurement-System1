@@ -211,6 +211,11 @@ function Register() {
                                             Admin
                                         </option>
 
+                                            <option value="VENDOR">
+                                                    Vendor
+                                                </option>
+
+
                                     </select>
 
                                     <small className="text-danger">

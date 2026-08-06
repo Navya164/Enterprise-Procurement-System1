@@ -142,29 +142,46 @@ public class PurchaseRequestService {
         );
     }
   // Procurement Dashboard
+   
     public List<PurchaseRequest> getProcurementRequests() {
+
+
+        List<PurchaseRequest> pending =
+                purchaseRequestRepository.findByStatus(
+                        Status.PENDING_PROCUREMENT
+                );
+
+
+        List<PurchaseRequest> progress =
+                purchaseRequestRepository.findByStatus(
+                        Status.PROCUREMENT_IN_PROGRESS
+                );
+
+
+        List<PurchaseRequest> completed =
+                purchaseRequestRepository.findByStatus(
+                        Status.COMPLETED
+                );
+
+
+        System.out.println("PENDING = " + pending.size());
+        System.out.println("PROGRESS = " + progress.size());
+        System.out.println("COMPLETED = " + completed.size());
+
+
+        completed.forEach(r ->
+            System.out.println(
+                "Completed ID = " + r.getRequestId()
+            )
+        );
 
 
         List<PurchaseRequest> requests = new ArrayList<>();
 
+        requests.addAll(pending);
+        requests.addAll(progress);
+        requests.addAll(completed);
 
-        requests.addAll(
-                purchaseRequestRepository.findByStatus(
-                        Status.PENDING_PROCUREMENT
-                )
-        );
-
-
-        requests.addAll(
-                purchaseRequestRepository.findByStatus(
-                        Status.PROCUREMENT_IN_PROGRESS
-                )
-        );
-        requests.addAll(
-                purchaseRequestRepository.findByStatus(
-                    Status.COMPLETED
-                )
-            );
 
         return requests;
     }

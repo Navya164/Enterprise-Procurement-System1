@@ -59,6 +59,11 @@ function Login() {
                     navigate("/admin");
                     break;
 
+
+                case "VENDOR":
+                    navigate("/vendor");
+                    break;
+
                 default:
                     navigate("/");
 

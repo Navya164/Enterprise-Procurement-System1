@@ -52,9 +52,8 @@ function VendorDashboard(){
         console.error(error);
 
         alert(
-            error.response?.data?.message ||
-            "Unable to update status"
-        );
+    JSON.stringify(error.response?.data)
+);
 
     }
 
@@ -103,20 +102,25 @@ function VendorDashboard(){
                         </p>
 
 
-                        <button
-                            className="btn btn-success me-2"
-                            onClick={() => updateStatus(order.id,"ACCEPTED")}
-                        >
-                            Accept
-                        </button>
+                        {order.status === "SENT" && (
 
-                        <button
-                            className="btn btn-danger"
-                            onClick={() => updateStatus(order.id,"REJECTED")}
-                        >
-                            Reject
-                        </button>
+                <>
+                    <button
+                        className="btn btn-success me-2"
+                        onClick={() => updateStatus(order.id,"ACCEPTED")}
+                    >
+                        Accept
+                    </button>
 
+                    <button
+                        className="btn btn-danger"
+                        onClick={() => updateStatus(order.id,"REJECTED")}
+                    >
+                        Reject
+                    </button>
+                </>
+
+            )}
 
                     </div>
 

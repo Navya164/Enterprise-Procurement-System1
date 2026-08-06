@@ -13,5 +13,6 @@ public enum PurchaseOrderStatus {
     PARTIALLY_DELIVERED,
     DELIVERED,
     CLOSED,
-    CANCELLED
+    CANCELLED,
+    REJECTED
 }
