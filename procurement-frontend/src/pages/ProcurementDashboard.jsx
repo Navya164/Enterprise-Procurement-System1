@@ -649,11 +649,12 @@ function ProcurementDashboard() {
 
             {/* Expected Delivery Date */}
             <div className="col-md-6">
-
                 <input
                     type="date"
                     className="form-control"
                     value={poData[request.requestId]?.expectedDeliveryDate || ""}
+                    min={new Date().toISOString().split("T")[0]}
+                    required
                     onChange={(e) =>
                         setPoData({
                             ...poData,
