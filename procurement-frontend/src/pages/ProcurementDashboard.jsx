@@ -11,6 +11,8 @@ import {
     ResponsiveContainer,
     BarChart,
     Bar,
+    LineChart,
+    Line,
     XAxis,
     YAxis,
     CartesianGrid
@@ -646,6 +648,51 @@ function ProcurementDashboard() {
 
 
     /* =========================================================
+       TASK 2 - TOTAL PROCUREMENT SPEND
+
+       Total Procurement Spend =
+       Sum of totalAmount of all Purchase Orders.
+
+       The value is calculated from the actual Purchase Order
+       data returned by the backend. No hard-coded amount is used.
+    ========================================================= */
+
+    const totalProcurementSpend =
+        purchaseOrders.reduce(
+            (total, po) =>
+                total + Number(po.totalAmount || 0),
+            0
+        );
+
+
+    /* =========================================================
+       REJECTION RATE
+
+       Rejection Rate =
+       Rejected Purchase Orders / Total Purchase Orders × 100
+
+       Only POs with status REJECTED are counted as rejected.
+       CANCELLED orders are not treated as rejected.
+    ========================================================= */
+
+    const rejectedPurchaseOrders =
+        purchaseOrders.filter(
+            po =>
+                po.status === "REJECTED"
+        ).length;
+
+
+    const rejectionRate =
+        totalPOs > 0
+            ? (
+                (rejectedPurchaseOrders /
+                    totalPOs) *
+                100
+            )
+            : 0;
+
+
+    /* =========================================================
        DELIVERY ANALYTICS
     ========================================================= */
 
@@ -773,6 +820,181 @@ function ProcurementDashboard() {
 
             })
         );
+
+
+    /* =========================================================
+       VENDOR-WISE PROCUREMENT SPEND
+    ========================================================= */
+
+    const vendorSpendMap = {};
+
+
+    purchaseOrders.forEach(po => {
+
+        const vendor =
+            po.vendorName || "Unknown Vendor";
+
+        if (!vendorSpendMap[vendor]) {
+
+            vendorSpendMap[vendor] = 0;
+
+        }
+
+        vendorSpendMap[vendor] +=
+            Number(po.totalAmount || 0);
+
+    });
+
+
+    const vendorSpendChartData =
+        Object.keys(vendorSpendMap).map(
+            vendor => ({
+
+                vendor: vendor,
+
+                spend:
+                    vendorSpendMap[vendor]
+
+            })
+        );
+
+
+    /* =========================================================
+       CATEGORY-WISE PROCUREMENT SPEND
+
+       Purchase Orders contain the purchaseRequestId, while the
+       category belongs to the related Purchase Request.
+       Match both datasets and sum PO totalAmount by category.
+    ========================================================= */
+
+    const categorySpendMap = {};
+
+
+    purchaseOrders.forEach(po => {
+
+        const request =
+            requests.find(
+                r =>
+                    Number(r.requestId) ===
+                    Number(po.purchaseRequestId)
+            );
+
+        const category =
+            request?.category ||
+            "Unknown Category";
+
+        if (!categorySpendMap[category]) {
+
+            categorySpendMap[category] = 0;
+
+        }
+
+        categorySpendMap[category] +=
+            Number(po.totalAmount || 0);
+
+    });
+
+
+    const categorySpendChartData =
+        Object.keys(categorySpendMap).map(
+            category => ({
+
+                category: category,
+
+                spend:
+                    categorySpendMap[category]
+
+            })
+        );
+
+
+    /* =========================================================
+       MONTHLY PROCUREMENT SPEND
+
+       Group Purchase Orders by their creation month and
+       calculate the total procurement spend for each month.
+
+       The calculation uses the actual Purchase Order date
+       returned by the backend. No values are hard-coded.
+    ========================================================= */
+
+    const monthlySpendMap = {};
+
+
+    purchaseOrders.forEach(po => {
+
+        const createdDate =
+            po.createdAt ||
+            po.createdDate ||
+            po.orderDate ||
+            po.date;
+
+
+        if (!createdDate) {
+            return;
+        }
+
+
+        const date = new Date(createdDate);
+
+
+        if (Number.isNaN(date.getTime())) {
+            return;
+        }
+
+
+        const monthKey =
+            `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+            ).padStart(2, "0")}`;
+
+
+        if (!monthlySpendMap[monthKey]) {
+
+            monthlySpendMap[monthKey] = 0;
+
+        }
+
+
+        monthlySpendMap[monthKey] +=
+            Number(po.totalAmount || 0);
+
+    });
+
+
+    const monthlySpendChartData =
+        Object.keys(monthlySpendMap)
+            .sort()
+            .map(monthKey => {
+
+                const [year, month] =
+                    monthKey.split("-");
+
+                const date =
+                    new Date(
+                        Number(year),
+                        Number(month) - 1,
+                        1
+                    );
+
+
+                return {
+
+                    month:
+                        date.toLocaleString(
+                            "en-IN",
+                            {
+                                month: "short",
+                                year: "numeric"
+                            }
+                        ),
+
+                    spend:
+                        monthlySpendMap[monthKey]
+
+                };
+
+            });
 
 
     /* =========================================================
@@ -1245,10 +1467,92 @@ function ProcurementDashboard() {
                         </h3>
 
 
+                        {/* =================================================
+                            ANALYTICS SUMMARY CARDS
+                        ================================================= */}
+
                         <div className="row g-4 mb-4">
 
+                            {/* TOTAL PROCUREMENT SPEND */}
 
-                            {/* PO STATUS */}
+                            <div className="col-md-6">
+
+                                <div
+                                    className="card h-100"
+                                    style={cardStyle}
+                                >
+
+                                    <div className="card-body p-4">
+
+                                        <small className="text-muted fw-semibold">
+                                            TOTAL PROCUREMENT SPEND
+                                        </small>
+
+                                        <h2 className="text-success fw-bold mt-2 mb-0">
+                                            ₹
+                                            {totalProcurementSpend.toLocaleString(
+                                                "en-IN",
+                                                {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2
+                                                }
+                                            )}
+                                        </h2>
+
+                                        <p className="text-muted small mb-0 mt-2">
+                                            Sum of all Purchase Order total amounts
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* REJECTION RATE */}
+
+                            <div className="col-md-6">
+
+                                <div
+                                    className="card h-100"
+                                    style={cardStyle}
+                                >
+
+                                    <div className="card-body p-4">
+
+                                        <small className="text-muted fw-semibold">
+                                            ❌ REJECTION RATE
+                                        </small>
+
+                                        <h2 className="text-danger fw-bold mt-2 mb-0">
+                                            {rejectionRate.toFixed(2)}%
+                                        </h2>
+
+                                        <p className="text-muted small mb-0 mt-2">
+                                            {rejectedPurchaseOrders} rejected / {totalPOs} total Purchase Orders
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {/* =================================================
+                            ANALYTICS CHART GRID
+
+                            Four equal-width cards are arranged in a clean
+                            2 × 2 layout so the analytics do not wrap into
+                            uneven columns.
+                        ================================================= */}
+
+                        <div className="row g-4 mb-4">
+
+                            {/* PURCHASE ORDER STATUS */}
 
                             <div className="col-lg-6">
 
@@ -1257,43 +1561,36 @@ function ProcurementDashboard() {
                                     style={cardStyle}
                                 >
 
-                                    <div className="card-body">
+                                    <div className="card-body p-4">
 
-                                        <h5 className="fw-bold">
+                                        <h5 className="fw-bold mb-1">
                                             Purchase Order Status
                                         </h5>
 
-                                        <p className="text-muted small">
+                                        <p className="text-muted small mb-3">
                                             Current purchase order distribution
                                         </p>
 
                                         <ResponsiveContainer
                                             width="100%"
-                                            height={300}
+                                            height={320}
                                         >
 
                                             <PieChart>
 
                                                 <Pie
-                                                    data={
-                                                        statusChartData
-                                                    }
+                                                    data={statusChartData}
                                                     dataKey="value"
                                                     nameKey="name"
-                                                    outerRadius={100}
+                                                    outerRadius={105}
                                                     label
                                                 >
 
                                                     {statusChartData.map(
-                                                        (
-                                                            entry,
-                                                            index
-                                                        ) => (
+                                                        (entry, index) => (
 
                                                             <Cell
-                                                                key={
-                                                                    index
-                                                                }
+                                                                key={index}
                                                                 fill={
                                                                     STATUS_COLORS[
                                                                         index %
@@ -1308,7 +1605,6 @@ function ProcurementDashboard() {
                                                 </Pie>
 
                                                 <Tooltip />
-
                                                 <Legend />
 
                                             </PieChart>
@@ -1322,7 +1618,7 @@ function ProcurementDashboard() {
                             </div>
 
 
-                            {/* VENDOR ORDERS */}
+                            {/* VENDOR-WISE PURCHASE ORDERS */}
 
                             <div className="col-lg-6">
 
@@ -1331,25 +1627,30 @@ function ProcurementDashboard() {
                                     style={cardStyle}
                                 >
 
-                                    <div className="card-body">
+                                    <div className="card-body p-4">
 
-                                        <h5 className="fw-bold">
+                                        <h5 className="fw-bold mb-1">
                                             Vendor-wise Purchase Orders
                                         </h5>
 
-                                        <p className="text-muted small">
+                                        <p className="text-muted small mb-3">
                                             Number of orders handled by each vendor
                                         </p>
 
                                         <ResponsiveContainer
                                             width="100%"
-                                            height={300}
+                                            height={330}
                                         >
 
                                             <BarChart
-                                                data={
-                                                    vendorChartData
-                                                }
+                                                layout="vertical"
+                                                data={vendorChartData}
+                                                margin={{
+                                                    top: 10,
+                                                    right: 25,
+                                                    left: 15,
+                                                    bottom: 10
+                                                }}
                                             >
 
                                                 <CartesianGrid
@@ -1357,10 +1658,17 @@ function ProcurementDashboard() {
                                                 />
 
                                                 <XAxis
-                                                    dataKey="vendor"
+                                                    type="number"
+                                                    allowDecimals={false}
+                                                    tick={{ fontSize: 12 }}
                                                 />
 
-                                                <YAxis />
+                                                <YAxis
+                                                    type="category"
+                                                    dataKey="vendor"
+                                                    width={135}
+                                                    tick={{ fontSize: 12 }}
+                                                />
 
                                                 <Tooltip />
 
@@ -1368,12 +1676,304 @@ function ProcurementDashboard() {
 
                                                 <Bar
                                                     dataKey="orders"
+                                                    name="Orders"
                                                     fill="#0d6efd"
+                                                    radius={[0, 5, 5, 0]}
                                                 />
 
                                             </BarChart>
 
                                         </ResponsiveContainer>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* VENDOR-WISE PROCUREMENT SPEND */}
+
+                            <div className="col-lg-6">
+
+                                <div
+                                    className="card h-100"
+                                    style={cardStyle}
+                                >
+
+                                    <div className="card-body p-4">
+
+                                        <h5 className="fw-bold mb-1">
+                                            Vendor-wise Procurement Spend
+                                        </h5>
+
+                                        <p className="text-muted small mb-3">
+                                            Total procurement spend by each vendor
+                                        </p>
+
+                                        <ResponsiveContainer
+                                            width="100%"
+                                            height={330}
+                                        >
+
+                                            <BarChart
+                                                layout="vertical"
+                                                data={vendorSpendChartData}
+                                                margin={{
+                                                    top: 10,
+                                                    right: 25,
+                                                    left: 15,
+                                                    bottom: 10
+                                                }}
+                                            >
+
+                                                <CartesianGrid
+                                                    strokeDasharray="3 3"
+                                                />
+
+                                                <XAxis
+                                                    type="number"
+                                                    tickFormatter={
+                                                        value =>
+                                                            `₹${Number(value).toLocaleString("en-IN")}`
+                                                    }
+                                                    tick={{ fontSize: 12 }}
+                                                />
+
+                                                <YAxis
+                                                    type="category"
+                                                    dataKey="vendor"
+                                                    width={135}
+                                                    tick={{ fontSize: 12 }}
+                                                />
+
+                                                <Tooltip
+                                                    formatter={
+                                                        value => [
+                                                            `₹${Number(value).toLocaleString(
+                                                                "en-IN",
+                                                                {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2
+                                                                }
+                                                            )}`,
+                                                            "Spend"
+                                                        ]
+                                                    }
+                                                />
+
+                                                <Legend />
+
+                                                <Bar
+                                                    dataKey="spend"
+                                                    name="Procurement Spend"
+                                                    fill="#198754"
+                                                    radius={[0, 5, 5, 0]}
+                                                />
+
+                                            </BarChart>
+
+                                        </ResponsiveContainer>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* CATEGORY-WISE PROCUREMENT SPEND */}
+
+                            <div className="col-lg-6">
+
+                                <div
+                                    className="card h-100"
+                                    style={cardStyle}
+                                >
+
+                                    <div className="card-body p-4">
+
+                                        <h5 className="fw-bold mb-1">
+                                            Category-wise Procurement Spend
+                                        </h5>
+
+                                        <p className="text-muted small mb-3">
+                                            Total procurement spend by each category
+                                        </p>
+
+                                        <ResponsiveContainer
+                                            width="100%"
+                                            height={330}
+                                        >
+
+                                            <BarChart
+                                                layout="vertical"
+                                                data={categorySpendChartData}
+                                                margin={{
+                                                    top: 10,
+                                                    right: 25,
+                                                    left: 15,
+                                                    bottom: 10
+                                                }}
+                                            >
+
+                                                <CartesianGrid
+                                                    strokeDasharray="3 3"
+                                                />
+
+                                                <XAxis
+                                                    type="number"
+                                                    tickFormatter={
+                                                        value =>
+                                                            `₹${Number(value).toLocaleString("en-IN")}`
+                                                    }
+                                                    tick={{ fontSize: 12 }}
+                                                />
+
+                                                <YAxis
+                                                    type="category"
+                                                    dataKey="category"
+                                                    width={190}
+                                                    tick={{ fontSize: 12 }}
+                                                />
+
+                                                <Tooltip
+                                                    formatter={
+                                                        value => [
+                                                            `₹${Number(value).toLocaleString(
+                                                                "en-IN",
+                                                                {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2
+                                                                }
+                                                            )}`,
+                                                            "Spend"
+                                                        ]
+                                                    }
+                                                />
+
+                                                <Legend />
+
+                                                <Bar
+                                                    dataKey="spend"
+                                                    name="Procurement Spend"
+                                                    fill="#6f42c1"
+                                                    radius={[0, 5, 5, 0]}
+                                                />
+
+                                            </BarChart>
+
+                                        </ResponsiveContainer>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {/* =================================================
+                            MONTHLY PROCUREMENT SPEND
+                        ================================================= */}
+
+                        <div className="row g-4 mb-4">
+
+                            <div className="col-12">
+
+                                <div
+                                    className="card"
+                                    style={cardStyle}
+                                >
+
+                                    <div className="card-body p-4">
+
+                                        <h5 className="fw-bold mb-1">
+                                            Monthly Procurement Spend
+                                        </h5>
+
+                                        <p className="text-muted small mb-3">
+                                            Total procurement spend grouped by Purchase Order creation month
+                                        </p>
+
+                                        {monthlySpendChartData.length === 0 ? (
+
+                                            <div className="text-center text-muted py-5">
+                                                No monthly procurement spend data available.
+                                            </div>
+
+                                        ) : (
+
+                                            <ResponsiveContainer
+                                                width="100%"
+                                                height={360}
+                                            >
+
+                                                <LineChart
+                                                    data={monthlySpendChartData}
+                                                    margin={{
+                                                        top: 15,
+                                                        right: 25,
+                                                        left: 10,
+                                                        bottom: 30
+                                                    }}
+                                                >
+
+                                                    <CartesianGrid
+                                                        strokeDasharray="3 3"
+                                                    />
+
+                                                    <XAxis
+                                                        dataKey="month"
+                                                        interval="preserveStartEnd"
+                                                        angle={0}
+                                                        textAnchor="middle"
+                                                        height={35}
+                                                        tickMargin={8}
+                                                        tick={{ fontSize: 12 }}
+                                                    />
+
+                                                    <YAxis
+                                                        tickFormatter={
+                                                            value =>
+                                                                `₹${Number(value).toLocaleString("en-IN")}`
+                                                        }
+                                                    />
+
+                                                    <Tooltip
+                                                        formatter={
+                                                            value => [
+                                                                `₹${Number(value).toLocaleString(
+                                                                    "en-IN",
+                                                                    {
+                                                                        minimumFractionDigits: 2,
+                                                                        maximumFractionDigits: 2
+                                                                    }
+                                                                )}`,
+                                                                "Procurement Spend"
+                                                            ]
+                                                        }
+                                                    />
+
+                                                    <Legend />
+
+                                                    <Line
+                                                        type="monotone"
+                                                        dataKey="spend"
+                                                        name="Procurement Spend"
+                                                        stroke="#0d6efd"
+                                                        strokeWidth={3}
+                                                        activeDot={{
+                                                            r: 6
+                                                        }}
+                                                    />
+
+                                                </LineChart>
+
+                                            </ResponsiveContainer>
+
+                                        )}
 
                                     </div>
 
