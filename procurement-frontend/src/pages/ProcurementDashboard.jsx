@@ -22,6 +22,7 @@ import {
 const REQUEST_API = "http://localhost:8080/api/purchase";
 const PURCHASE_ORDER_API = "http://localhost:8080/api/purchase-orders";
 const SUPPLIER_API = "http://localhost:8080/suppliers";
+const ANALYTICS_API = "http://localhost:8080/api/analytics/procurement";
 
 
 function ProcurementDashboard() {
@@ -40,6 +41,7 @@ function ProcurementDashboard() {
 
     const [poData, setPoData] = useState({});
     const [deliveryData, setDeliveryData] = useState({});
+    const [analytics, setAnalytics] = useState(null);
 
     const [loading, setLoading] = useState(false);
     const [loadingData, setLoadingData] = useState(false);
@@ -73,7 +75,7 @@ function ProcurementDashboard() {
 
         return () => clearInterval(interval);
 
-    }, []);
+        }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
     const loadAllData = async () => {
@@ -85,7 +87,8 @@ function ProcurementDashboard() {
             await Promise.all([
                 loadRequests(),
                 loadPurchaseOrders(),
-                loadSuppliers()
+                loadSuppliers(),
+                loadAnalytics()
             ]);
 
         } catch (error) {
@@ -168,6 +171,38 @@ function ProcurementDashboard() {
         } catch (error) {
 
             console.error("Unable to load suppliers:", error);
+
+        }
+
+    };
+
+
+    /* =========================================================
+       LOAD PROCUREMENT ANALYTICS
+
+       Task 2 analytics are calculated by the Spring Boot backend
+       from the live database. This keeps spend/performance rules
+       in the backend instead of duplicating business logic here.
+    ========================================================= */
+
+    const loadAnalytics = async () => {
+
+        try {
+
+            const response = await axios.get(
+                ANALYTICS_API
+            );
+
+            console.log("PROCUREMENT ANALYTICS:", response.data);
+
+            setAnalytics(response.data || null);
+
+        } catch (error) {
+
+            console.error(
+                "Unable to load procurement analytics:",
+                error
+            );
 
         }
 
@@ -604,43 +639,61 @@ function ProcurementDashboard() {
 
     /* =========================================================
        OVERVIEW COUNTS
+
+       Performance counts come from the backend analytics API.
+       Local purchase-order counts are used only as a fallback
+       while analytics data is loading.
     ========================================================= */
 
+    const analyticsPerformance =
+        analytics?.performance || {};
+
+
     const totalPOs =
-        purchaseOrders.length;
+        Number.isFinite(Number(analyticsPerformance.totalPurchaseOrders))
+            ? Number(analyticsPerformance.totalPurchaseOrders)
+            : purchaseOrders.length;
 
 
     const pendingPOs =
-        purchaseOrders.filter(
-            po =>
-                po.status === "CREATED" ||
-                po.status === "SENT"
-        ).length;
+        Number.isFinite(Number(analyticsPerformance.pendingPurchaseOrders))
+            ? Number(analyticsPerformance.pendingPurchaseOrders)
+            : purchaseOrders.filter(
+                po =>
+                    po.status === "CREATED" ||
+                    po.status === "SENT"
+            ).length;
 
 
     const inProgressPOs =
-        purchaseOrders.filter(
-            po =>
-                po.status === "ACCEPTED" ||
-                po.status === "SHIPPED" ||
-                po.status === "PARTIALLY_DELIVERED"
-        ).length;
+        Number.isFinite(Number(analyticsPerformance.inProgressPurchaseOrders))
+            ? Number(analyticsPerformance.inProgressPurchaseOrders)
+            : purchaseOrders.filter(
+                po =>
+                    po.status === "ACCEPTED" ||
+                    po.status === "SHIPPED" ||
+                    po.status === "PARTIALLY_DELIVERED"
+            ).length;
 
 
     const completedPOs =
-        purchaseOrders.filter(
-            po =>
-                po.status === "DELIVERED" ||
-                po.status === "CLOSED"
-        ).length;
+        Number.isFinite(Number(analyticsPerformance.completedPurchaseOrders))
+            ? Number(analyticsPerformance.completedPurchaseOrders)
+            : purchaseOrders.filter(
+                po =>
+                    po.status === "DELIVERED" ||
+                    po.status === "CLOSED"
+            ).length;
 
 
     const rejectedPOs =
-        purchaseOrders.filter(
-            po =>
-                po.status === "REJECTED" ||
-                po.status === "CANCELLED"
-        ).length;
+        Number.isFinite(Number(analyticsPerformance.rejectedPurchaseOrders))
+            ? Number(analyticsPerformance.rejectedPurchaseOrders)
+            : purchaseOrders.filter(
+                po =>
+                    po.status === "REJECTED" ||
+                    po.status === "CANCELLED"
+            ).length;
 
 
     const totalVendors =
@@ -650,46 +703,51 @@ function ProcurementDashboard() {
     /* =========================================================
        TASK 2 - TOTAL PROCUREMENT SPEND
 
-       Total Procurement Spend =
-       Sum of totalAmount of all Purchase Orders.
-
-       The value is calculated from the actual Purchase Order
-       data returned by the backend. No hard-coded amount is used.
+       The backend calculates this using the required
+       completed/valid Purchase Order condition.
+       Do not recalculate it from all purchaseOrders here.
     ========================================================= */
 
     const totalProcurementSpend =
-        purchaseOrders.reduce(
-            (total, po) =>
-                total + Number(po.totalAmount || 0),
-            0
+        Number(
+            analytics?.totalProcurementSpend || 0
         );
 
 
     /* =========================================================
-       REJECTION RATE
-
-       Rejection Rate =
-       Rejected Purchase Orders / Total Purchase Orders × 100
-
-       Only POs with status REJECTED are counted as rejected.
-       CANCELLED orders are not treated as rejected.
+       TASK 2 - PERFORMANCE
     ========================================================= */
 
+    const completedPurchaseOrders =
+        Number(
+            analyticsPerformance.completedPurchaseOrders || 0
+        );
+
+
     const rejectedPurchaseOrders =
-        purchaseOrders.filter(
-            po =>
-                po.status === "REJECTED"
-        ).length;
+        Number(
+            analyticsPerformance.rejectedPurchaseOrders || 0
+        );
+
+
+    const completionRate =
+        Number(
+            analyticsPerformance.completionRate || 0
+        );
 
 
     const rejectionRate =
-        totalPOs > 0
-            ? (
-                (rejectedPurchaseOrders /
-                    totalPOs) *
-                100
-            )
-            : 0;
+        Number(
+            analyticsPerformance.rejectionRate || 0
+        );
+
+
+    /* =========================================================
+       TASK 2 - COST OPTIMIZATION INSIGHTS
+    ========================================================= */
+
+    const costOptimization =
+        analytics?.costOptimization || {};
 
 
     /* =========================================================
@@ -753,28 +811,37 @@ function ProcurementDashboard() {
 
     /* =========================================================
        ANALYTICS DATA
+
+       Spend and performance analytics come directly from the
+       backend analytics response. Vendor-wise PO count remains
+       based on the existing PO data because that chart measures
+       order count rather than spend.
     ========================================================= */
 
     const statusChartData = [
 
         {
             name: "Completed",
-            value: completedPOs
+            value: completedPurchaseOrders
         },
 
         {
             name: "In Progress",
-            value: inProgressPOs
+            value: Number(
+                analyticsPerformance.inProgressPurchaseOrders || 0
+            )
         },
 
         {
             name: "Pending",
-            value: pendingPOs
+            value: Number(
+                analyticsPerformance.pendingPurchaseOrders || 0
+            )
         },
 
         {
             name: "Rejected",
-            value: rejectedPOs
+            value: rejectedPurchaseOrders
         }
 
     ];
@@ -826,34 +893,15 @@ function ProcurementDashboard() {
        VENDOR-WISE PROCUREMENT SPEND
     ========================================================= */
 
-    const vendorSpendMap = {};
-
-
-    purchaseOrders.forEach(po => {
-
-        const vendor =
-            po.vendorName || "Unknown Vendor";
-
-        if (!vendorSpendMap[vendor]) {
-
-            vendorSpendMap[vendor] = 0;
-
-        }
-
-        vendorSpendMap[vendor] +=
-            Number(po.totalAmount || 0);
-
-    });
-
-
     const vendorSpendChartData =
-        Object.keys(vendorSpendMap).map(
-            vendor => ({
+        (analytics?.vendorWiseSpend || []).map(
+            item => ({
 
-                vendor: vendor,
+                vendor:
+                    item.name || "Unknown Vendor",
 
                 spend:
-                    vendorSpendMap[vendor]
+                    Number(item.spend || 0)
 
             })
         );
@@ -861,48 +909,17 @@ function ProcurementDashboard() {
 
     /* =========================================================
        CATEGORY-WISE PROCUREMENT SPEND
-
-       Purchase Orders contain the purchaseRequestId, while the
-       category belongs to the related Purchase Request.
-       Match both datasets and sum PO totalAmount by category.
     ========================================================= */
 
-    const categorySpendMap = {};
-
-
-    purchaseOrders.forEach(po => {
-
-        const request =
-            requests.find(
-                r =>
-                    Number(r.requestId) ===
-                    Number(po.purchaseRequestId)
-            );
-
-        const category =
-            request?.category ||
-            "Unknown Category";
-
-        if (!categorySpendMap[category]) {
-
-            categorySpendMap[category] = 0;
-
-        }
-
-        categorySpendMap[category] +=
-            Number(po.totalAmount || 0);
-
-    });
-
-
     const categorySpendChartData =
-        Object.keys(categorySpendMap).map(
-            category => ({
+        (analytics?.categoryWiseSpend || []).map(
+            item => ({
 
-                category: category,
+                category:
+                    item.name || "Unknown Category",
 
                 spend:
-                    categorySpendMap[category]
+                    Number(item.spend || 0)
 
             })
         );
@@ -910,91 +927,20 @@ function ProcurementDashboard() {
 
     /* =========================================================
        MONTHLY PROCUREMENT SPEND
-
-       Group Purchase Orders by their creation month and
-       calculate the total procurement spend for each month.
-
-       The calculation uses the actual Purchase Order date
-       returned by the backend. No values are hard-coded.
     ========================================================= */
 
-    const monthlySpendMap = {};
-
-
-    purchaseOrders.forEach(po => {
-
-        const createdDate =
-            po.createdAt ||
-            po.createdDate ||
-            po.orderDate ||
-            po.date;
-
-
-        if (!createdDate) {
-            return;
-        }
-
-
-        const date = new Date(createdDate);
-
-
-        if (Number.isNaN(date.getTime())) {
-            return;
-        }
-
-
-        const monthKey =
-            `${date.getFullYear()}-${String(
-                date.getMonth() + 1
-            ).padStart(2, "0")}`;
-
-
-        if (!monthlySpendMap[monthKey]) {
-
-            monthlySpendMap[monthKey] = 0;
-
-        }
-
-
-        monthlySpendMap[monthKey] +=
-            Number(po.totalAmount || 0);
-
-    });
-
-
     const monthlySpendChartData =
-        Object.keys(monthlySpendMap)
-            .sort()
-            .map(monthKey => {
+        (analytics?.monthlySpend || []).map(
+            item => ({
 
-                const [year, month] =
-                    monthKey.split("-");
+                month:
+                    item.month || "Unknown Month",
 
-                const date =
-                    new Date(
-                        Number(year),
-                        Number(month) - 1,
-                        1
-                    );
+                spend:
+                    Number(item.spend || 0)
 
-
-                return {
-
-                    month:
-                        date.toLocaleString(
-                            "en-IN",
-                            {
-                                month: "short",
-                                year: "numeric"
-                            }
-                        ),
-
-                    spend:
-                        monthlySpendMap[monthKey]
-
-                };
-
-            });
+            })
+        );
 
 
     /* =========================================================
@@ -1475,7 +1421,7 @@ function ProcurementDashboard() {
 
                             {/* TOTAL PROCUREMENT SPEND */}
 
-                            <div className="col-md-6">
+                            <div className="col-md-6 col-lg-4">
 
                                 <div
                                     className="card h-100"
@@ -1500,7 +1446,37 @@ function ProcurementDashboard() {
                                         </h2>
 
                                         <p className="text-muted small mb-0 mt-2">
-                                            Sum of all Purchase Order total amounts
+                                            Spend from completed/valid Purchase Orders
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* COMPLETION RATE */}
+
+                            <div className="col-md-6 col-lg-4">
+
+                                <div
+                                    className="card h-100"
+                                    style={cardStyle}
+                                >
+
+                                    <div className="card-body p-4">
+
+                                        <small className="text-muted fw-semibold">
+                                            ✓ ORDER COMPLETION RATE
+                                        </small>
+
+                                        <h2 className="text-primary fw-bold mt-2 mb-0">
+                                            {completionRate.toFixed(2)}%
+                                        </h2>
+
+                                        <p className="text-muted small mb-0 mt-2">
+                                            {completedPurchaseOrders} completed / {totalPOs} total Purchase Orders
                                         </p>
 
                                     </div>
@@ -1512,7 +1488,7 @@ function ProcurementDashboard() {
 
                             {/* REJECTION RATE */}
 
-                            <div className="col-md-6">
+                            <div className="col-md-6 col-lg-4">
 
                                 <div
                                     className="card h-100"
@@ -1531,6 +1507,221 @@ function ProcurementDashboard() {
 
                                         <p className="text-muted small mb-0 mt-2">
                                             {rejectedPurchaseOrders} rejected / {totalPOs} total Purchase Orders
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {/* =================================================
+                            PERFORMANCE & COST OPTIMIZATION INSIGHTS
+                        ================================================= */}
+
+                        <div className="row g-4 mb-4">
+
+                            <div className="col-lg-6">
+
+                                <div
+                                    className="card h-100"
+                                    style={cardStyle}
+                                >
+
+                                    <div className="card-body p-4">
+
+                                        <h5 className="fw-bold mb-3">
+                                            📈 Procurement Performance Insights
+                                        </h5>
+
+                                        <div className="row g-3">
+
+                                            <div className="col-6">
+
+                                                <div className="border rounded-3 p-3 h-100">
+
+                                                    <small className="text-muted d-block">
+                                                        COMPLETED
+                                                    </small>
+
+                                                    <h4 className="text-success fw-bold mb-0 mt-1">
+                                                        {completedPurchaseOrders}
+                                                    </h4>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div className="col-6">
+
+                                                <div className="border rounded-3 p-3 h-100">
+
+                                                    <small className="text-muted d-block">
+                                                        IN PROGRESS
+                                                    </small>
+
+                                                    <h4 className="text-info fw-bold mb-0 mt-1">
+                                                        {Number(
+                                                            analyticsPerformance.inProgressPurchaseOrders || 0
+                                                        )}
+                                                    </h4>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div className="col-6">
+
+                                                <div className="border rounded-3 p-3 h-100">
+
+                                                    <small className="text-muted d-block">
+                                                        PENDING
+                                                    </small>
+
+                                                    <h4 className="text-warning fw-bold mb-0 mt-1">
+                                                        {Number(
+                                                            analyticsPerformance.pendingPurchaseOrders || 0
+                                                        )}
+                                                    </h4>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div className="col-6">
+
+                                                <div className="border rounded-3 p-3 h-100">
+
+                                                    <small className="text-muted d-block">
+                                                        COMPLETION RATE
+                                                    </small>
+
+                                                    <h4 className="text-primary fw-bold mb-0 mt-1">
+                                                        {completionRate.toFixed(2)}%
+                                                    </h4>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        <p className="text-muted small mt-3 mb-0">
+                                            {Number(
+                                                analyticsPerformance.inProgressPurchaseOrders || 0
+                                            ) > 0
+                                                ? "There are Purchase Orders still in progress. Follow up with vendors to complete the remaining procurement cycle."
+                                                : "All current Purchase Orders have completed the procurement cycle."}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="col-lg-6">
+
+                                <div
+                                    className="card h-100"
+                                    style={cardStyle}
+                                >
+
+                                    <div className="card-body p-4">
+
+                                        <h5 className="fw-bold mb-3">
+                                            💡 Cost Optimization Insights
+                                        </h5>
+
+                                        <div className="mb-3">
+
+                                            <small className="text-muted d-block">
+                                                HIGHEST-SPEND VENDOR
+                                            </small>
+
+                                            <strong>
+                                                {costOptimization.highestSpendVendor || "N/A"}
+                                            </strong>
+
+                                            <span className="ms-2 text-success fw-semibold">
+                                                ₹
+                                                {Number(
+                                                    costOptimization.highestVendorSpend || 0
+                                                ).toLocaleString(
+                                                    "en-IN",
+                                                    {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2
+                                                    }
+                                                )}
+                                            </span>
+
+                                        </div>
+
+
+                                        <div className="mb-3">
+
+                                            <small className="text-muted d-block">
+                                                HIGHEST-SPEND CATEGORY
+                                            </small>
+
+                                            <strong>
+                                                {costOptimization.highestSpendCategory || "N/A"}
+                                            </strong>
+
+                                            <span className="ms-2 text-success fw-semibold">
+                                                ₹
+                                                {Number(
+                                                    costOptimization.highestCategorySpend || 0
+                                                ).toLocaleString(
+                                                    "en-IN",
+                                                    {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2
+                                                    }
+                                                )}
+                                            </span>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <small className="text-muted d-block">
+                                                HIGHEST-SPEND MONTH
+                                            </small>
+
+                                            <strong>
+                                                {costOptimization.highestSpendMonth || "N/A"}
+                                            </strong>
+
+                                            <span className="ms-2 text-success fw-semibold">
+                                                ₹
+                                                {Number(
+                                                    costOptimization.highestMonthlySpend || 0
+                                                ).toLocaleString(
+                                                    "en-IN",
+                                                    {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2
+                                                    }
+                                                )}
+                                            </span>
+
+                                        </div>
+
+
+                                        <p className="text-muted small mt-3 mb-0">
+                                            Review high-spend vendors and categories for
+                                            negotiated pricing, volume discounts and
+                                            alternative supplier opportunities.
                                         </p>
 
                                     </div>
@@ -1894,7 +2085,7 @@ function ProcurementDashboard() {
                                         </h5>
 
                                         <p className="text-muted small mb-3">
-                                            Total procurement spend grouped by Purchase Order creation month
+                                            Completed/valid procurement spend grouped by month
                                         </p>
 
                                         {monthlySpendChartData.length === 0 ? (
