@@ -1,6 +1,7 @@
 package com.pms.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
@@ -47,25 +48,25 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
      * ============================================================
      *
      * CREATED
-     *    ↓
+     *    â†“
      * SENT
-     *    ↓
+     *    â†“
      * ACCEPTED
-     *    ↓
+     *    â†“
      * SHIPPED
-     *    ↓
+     *    â†“
      * PARTIALLY_DELIVERED
-     *    ↓
+     *    â†“
      * DELIVERED
-     *    ↓
+     *    â†“
      * CLOSED
      *
      * Other possible endings:
      *
-     * SENT → REJECTED
-     * CREATED → CANCELLED
-     * SENT → CANCELLED
-     * ACCEPTED → CANCELLED
+     * SENT â†’ REJECTED
+     * CREATED â†’ CANCELLED
+     * SENT â†’ CANCELLED
+     * ACCEPTED â†’ CANCELLED
      *
      */
 
@@ -465,6 +466,14 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                         po.getQuantity()
                 );
 
+                /*
+                 * Record the actual date on which the complete
+                 * quantity was delivered.
+                 */
+                po.setDeliveryDate(
+                        LocalDate.now()
+                );
+
                 po.setStatus(
                         PurchaseOrderStatus.DELIVERED
                 );
@@ -503,6 +512,16 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
              */
             po.setDeliveredQuantity(
                     po.getQuantity()
+            );
+
+            /*
+             * Record the actual delivery date.
+             * Analytics compares this with the expected
+             * delivery date to determine on-time or delayed
+             * delivery performance.
+             */
+            po.setDeliveryDate(
+                    LocalDate.now()
             );
 
             po.setStatus(
@@ -676,6 +695,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
         dto.setExpectedDeliveryDate(
                 po.getExpectedDeliveryDate()
+        );
+
+        dto.setDeliveryDate(
+                po.getDeliveryDate()
         );
 
 

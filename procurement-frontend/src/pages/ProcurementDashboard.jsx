@@ -2245,6 +2245,156 @@ function ProcurementDashboard() {
                         </div>
 
 
+                        {/* =================================================
+                            DELIVERY PERFORMANCE
+
+                            These metrics come directly from the backend
+                            procurement analytics API.
+                        ================================================= */}
+
+                        <div
+                            className="card mb-4"
+                            style={cardStyle}
+                        >
+
+                            <div className="card-body p-4">
+
+                                <div className="d-flex justify-content-between align-items-center mb-4">
+
+                                    <div>
+
+                                        <h5 className="fw-bold mb-1">
+                                            🚚 Delivery Performance
+                                        </h5>
+
+                                        <p className="text-muted small mb-0">
+                                            On-time and delayed delivery performance
+                                            based on completed deliveries.
+                                        </p>
+
+                                    </div>
+
+                                    <div className="text-end">
+
+                                        <small className="text-muted d-block">
+                                            ON-TIME DELIVERY RATE
+                                        </small>
+
+                                        <h3 className="text-success fw-bold mb-0">
+                                            {Number(
+                                                analytics?.deliveryPerformance
+                                                    ?.onTimeDeliveryRate || 0
+                                            ).toFixed(2)}%
+                                        </h3>
+
+                                    </div>
+
+                                </div>
+
+                                <div className="row g-3">
+
+                                    <div className="col-md-4">
+                                        <div className="border rounded-3 p-3 h-100">
+                                            <small className="text-muted d-block">
+                                                TOTAL DELIVERED ORDERS
+                                            </small>
+                                            <h3 className="text-primary fw-bold mb-0 mt-2">
+                                                {Number(
+                                                    analytics?.deliveryPerformance
+                                                        ?.totalDeliveredOrders || 0
+                                                )}
+                                            </h3>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-4">
+                                        <div className="border rounded-3 p-3 h-100">
+                                            <small className="text-muted d-block">
+                                                ON-TIME DELIVERIES
+                                            </small>
+                                            <h3 className="text-success fw-bold mb-0 mt-2">
+                                                {Number(
+                                                    analytics?.deliveryPerformance
+                                                        ?.onTimeDeliveries || 0
+                                                )}
+                                            </h3>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-4">
+                                        <div className="border rounded-3 p-3 h-100">
+                                            <small className="text-muted d-block">
+                                                DELAYED DELIVERIES
+                                            </small>
+                                            <h3 className="text-danger fw-bold mb-0 mt-2">
+                                                {Number(
+                                                    analytics?.deliveryPerformance
+                                                        ?.delayedDeliveries || 0
+                                                )}
+                                            </h3>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div className="mt-4">
+
+                                    <div className="d-flex justify-content-between mb-2">
+                                        <span className="text-muted small">
+                                            On-time delivery performance
+                                        </span>
+
+                                        <span className="fw-semibold small">
+                                            {Number(
+                                                analytics?.deliveryPerformance
+                                                    ?.onTimeDeliveryRate || 0
+                                            ).toFixed(2)}%
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        className="progress"
+                                        style={{
+                                            height: "20px"
+                                        }}
+                                    >
+                                        <div
+                                            className="progress-bar bg-success"
+                                            role="progressbar"
+                                            style={{
+                                                width: `${Math.min(
+                                                    Math.max(
+                                                        Number(
+                                                            analytics?.deliveryPerformance
+                                                                ?.onTimeDeliveryRate || 0
+                                                        ),
+                                                        0
+                                                    ),
+                                                    100
+                                                )}%`
+                                            }}
+                                            aria-valuenow={
+                                                Number(
+                                                    analytics?.deliveryPerformance
+                                                        ?.onTimeDeliveryRate || 0
+                                                )
+                                            }
+                                            aria-valuemin="0"
+                                            aria-valuemax="100"
+                                        >
+                                            {Number(
+                                                analytics?.deliveryPerformance
+                                                    ?.onTimeDeliveryRate || 0
+                                            ).toFixed(2)}%
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
                         {/* REQUEST WORKFLOW */}
 
                         <h4 className="fw-bold mb-3">

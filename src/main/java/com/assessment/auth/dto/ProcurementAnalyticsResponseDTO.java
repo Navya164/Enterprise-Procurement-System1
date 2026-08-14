@@ -17,6 +17,8 @@ public class ProcurementAnalyticsResponseDTO {
 
     private CostOptimizationDTO costOptimization;
 
+    private DeliveryPerformanceDTO deliveryPerformance;
+
     public ProcurementAnalyticsResponseDTO() {
     }
 
@@ -78,5 +80,15 @@ public class ProcurementAnalyticsResponseDTO {
             CostOptimizationDTO costOptimization) {
 
         this.costOptimization = costOptimization;
+    }
+
+    public DeliveryPerformanceDTO getDeliveryPerformance() {
+        return deliveryPerformance;
+    }
+
+    public void setDeliveryPerformance(
+            DeliveryPerformanceDTO deliveryPerformance) {
+
+        this.deliveryPerformance = deliveryPerformance;
     }
 }
