@@ -14,6 +14,10 @@ public class PurchaseRequest {
     @ManyToOne
     @JoinColumn(name = "employee_id")
     private User employee;
+   
+    @ManyToOne
+    @JoinColumn(name = "assigned_manager_id")
+    private User assignedManager;
 
     private String title;
 
@@ -35,6 +39,10 @@ public class PurchaseRequest {
     private String currentLevel;
 
     private LocalDateTime approvalDate;
+    
+    private String previousStatus;
+
+    private LocalDateTime decisionTime;
 
     private LocalDateTime expiryDate;
 
@@ -164,5 +172,28 @@ public class PurchaseRequest {
     public void setAmount(Double amount) {
         this.amount = amount;
     }
+    
+    public User getAssignedManager() {
+        return assignedManager;
+    }
 
+    public void setAssignedManager(User assignedManager) {
+        this.assignedManager = assignedManager;
+    }
+    
+    public String getPreviousStatus() {
+        return previousStatus;
+    }
+
+    public void setPreviousStatus(String previousStatus) {
+        this.previousStatus = previousStatus;
+    }
+
+    public LocalDateTime getDecisionTime() {
+        return decisionTime;
+    }
+
+    public void setDecisionTime(LocalDateTime decisionTime) {
+        this.decisionTime = decisionTime;
+    }
 }

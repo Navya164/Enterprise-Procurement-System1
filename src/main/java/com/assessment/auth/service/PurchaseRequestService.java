@@ -1,32 +1,124 @@
 package com.assessment.auth.service;
 
-import com.assessment.auth.dto.ApprovalDTO;
-import com.assessment.auth.dto.PurchaseRequestDTO;
-import com.assessment.auth.entity.*;
-import com.assessment.auth.repository.PurchaseRequestRepository;
-import com.assessment.auth.repository.UserRepository;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import com.assessment.auth.dto.ApprovalDTO;
+import com.assessment.auth.dto.PurchaseRequestDTO;
+import com.assessment.auth.entity.Priority;
+import com.assessment.auth.entity.PurchaseRequest;
+import com.assessment.auth.entity.Role;
+import com.assessment.auth.entity.Status;
+import com.assessment.auth.entity.User;
+import com.assessment.auth.repository.PurchaseRequestRepository;
+import com.assessment.auth.repository.UserRepository;
+import com.pms.entity.ApprovalHierarchy;
+import com.pms.repository.ApprovalHierarchyRepository;
 
 @Service
 public class PurchaseRequestService {
 
-    private final PurchaseRequestRepository purchaseRequestRepository;
-    private final UserRepository userRepository;
+	private final PurchaseRequestRepository purchaseRequestRepository;
+	private final UserRepository userRepository;
+	private final ApprovalHierarchyRepository approvalHierarchyRepository;
 
 
-    public PurchaseRequestService(PurchaseRequestRepository purchaseRequestRepository,
-                                  UserRepository userRepository) {
-        this.purchaseRequestRepository = purchaseRequestRepository;
-        this.userRepository = userRepository;
-    }
+	public PurchaseRequestService(
+	        PurchaseRequestRepository purchaseRequestRepository,
+	        UserRepository userRepository,
+	        ApprovalHierarchyRepository approvalHierarchyRepository) {
 
+	    this.purchaseRequestRepository = purchaseRequestRepository;
+	    this.userRepository = userRepository;
+	    this.approvalHierarchyRepository = approvalHierarchyRepository;
+	}
+	
+	private void assignManager(PurchaseRequest request) {
+
+		List<ApprovalHierarchy> hierarchy =
+		        approvalHierarchyRepository
+		                .findAllByOrderByApprovalLevelAsc();
+
+	    for (ApprovalHierarchy level : hierarchy) {
+
+	        User manager =
+	                userRepository.findById(level.getApproverId())
+	                        .orElse(null);
+
+	        if (manager != null
+	                && manager.getRole() == Role.MANAGER
+	                && manager.isAvailable()) {
+
+	            request.setAssignedManager(manager);
+
+	            request.setCurrentLevel(
+	                    "MANAGER_LEVEL_" + level.getApprovalLevel()
+	            );
+
+	            return;
+	        }
+	    }
+
+	    throw new RuntimeException(
+	            "No available manager found for this request"
+	    );
+	}
+	
+	private void reassignIfManagerUnavailable(PurchaseRequest request) {
+
+	    User currentManager = request.getAssignedManager();
+
+	    if (currentManager != null && currentManager.isAvailable()) {
+	        return;
+	    }
+
+	    List<ApprovalHierarchy> hierarchy =
+	            approvalHierarchyRepository
+	                    .findAllByOrderByApprovalLevelAsc();
+	    Integer currentLevel = 0;
+
+	    if (request.getCurrentLevel() != null &&
+	            request.getCurrentLevel().startsWith("MANAGER_LEVEL_")) {
+
+	        currentLevel = Integer.parseInt(
+	                request.getCurrentLevel()
+	                        .replace("MANAGER_LEVEL_", "")
+	        );
+	    }
+
+	    for (ApprovalHierarchy level : hierarchy) {
+
+	        if (level.getApprovalLevel() <= currentLevel) {
+	            continue;
+	        }
+
+	        User manager =
+	                userRepository.findById(level.getApproverId())
+	                        .orElse(null);
+
+	        if (manager != null
+	                && manager.getRole() == Role.MANAGER
+	                && manager.isAvailable()) {
+
+	            request.setAssignedManager(manager);
+
+	            request.setCurrentLevel(
+	                    "MANAGER_LEVEL_" + level.getApprovalLevel()
+	            );
+
+	            return;
+	        }
+	    }
+
+	    throw new RuntimeException(
+	            "No higher-level available manager found"
+	    );
+	}
 
     // Employee creates purchase request
     public PurchaseRequest createRequest(Long employeeId,
@@ -69,51 +161,60 @@ public class PurchaseRequestService {
                 Priority.valueOf(dto.getPriority())
         );
 
-
-
         request.setStatus(Status.PENDING_MANAGER);
-        request.setCurrentLevel("MANAGER");
+
+        assignManager(request);
 
         return purchaseRequestRepository.save(request);
     }
 
-    // Manager Approval
     public PurchaseRequest approveRequest(Long requestId,
-                                          ApprovalDTO dto) {
+            ApprovalDTO dto) {
 
+				PurchaseRequest request =
+				purchaseRequestRepository.findById(requestId)
+				.orElseThrow(() -> new RuntimeException(
+				  "Purchase Request not found"
+				));
+				
+				if (request.getAssignedManager() == null) {
+				throw new RuntimeException(
+				"No manager is assigned to this purchase request"
+				);
+	}
+				
+				if (dto.getManagerId() == null ||
+				!request.getAssignedManager().getId().equals(dto.getManagerId())) {
+				
+				throw new ResponseStatusException(
+				HttpStatus.FORBIDDEN,
+				"You are not authorized to approve or reject this request"
+				);
+		}
+				
+				// Save the current status before changing it
+				request.setPreviousStatus(request.getStatus().name());
+				request.setDecisionTime(LocalDateTime.now());
 
-        PurchaseRequest request = purchaseRequestRepository.findById(requestId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Purchase Request not found"
-                ));
+				if (dto.isApproved()) {
 
+				    request.setStatus(Status.PENDING_PROCUREMENT);
+				    request.setCurrentLevel("PROCUREMENT");
 
-        if(dto.isApproved()) {
+				} else {
 
-
-            request.setStatus(Status.PENDING_PROCUREMENT);
-            request.setCurrentLevel("PROCUREMENT");
-
-
-        } else {
-
-
-            request.setStatus(Status.REJECTED);
-            request.setCurrentLevel("REJECTED");
-
-        }
-
-
-        request.setRemarks(dto.getRemarks());
-        request.setApprovalDate(LocalDateTime.now());
-        request.setExpiryDate(
-                LocalDateTime.now().plusDays(15)
-        );
-
-
-        return purchaseRequestRepository.save(request);
-    }
-
+				    request.setStatus(Status.REJECTED);
+				    request.setCurrentLevel("REJECTED");
+				}
+				
+				request.setRemarks(dto.getRemarks());
+				request.setApprovalDate(LocalDateTime.now());
+				request.setExpiryDate(
+				LocalDateTime.now().plusDays(15)
+				);
+				
+				return purchaseRequestRepository.save(request);
+				}
 
 
 
@@ -131,16 +232,34 @@ public class PurchaseRequestService {
     }
 
 
-
-
-
     // Manager Dashboard
-    public List<PurchaseRequest> getPendingRequests() {
+    public List<PurchaseRequest> getPendingRequests(Long managerId) {
 
-        return purchaseRequestRepository.findByStatus(
-                Status.PENDING_MANAGER
-        );
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new RuntimeException(
+                        "Manager not found"
+                ));
+
+        if (manager.getRole() != Role.MANAGER) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "User is not a manager"
+            );
+        }
+
+        List<PurchaseRequest> requests =
+                purchaseRequestRepository.findByAssignedManagerAndStatus(
+                        manager,
+                        Status.PENDING_MANAGER
+                );
+
+        for (PurchaseRequest request : requests) {
+            reassignIfManagerUnavailable(request);
+        }
+
+        return purchaseRequestRepository.saveAll(requests);
     }
+    
   // Procurement Dashboard
    
     public List<PurchaseRequest> getProcurementRequests() {
@@ -243,6 +362,68 @@ public class PurchaseRequestService {
                 .orElseThrow(() -> new RuntimeException(
                         "Purchase Request not found"
                 ));
+    }
+    
+ // Undo manager approval/rejection within 3 minutes
+    public PurchaseRequest undoDecision(Long requestId, Long managerId) {
+
+        PurchaseRequest request =
+                purchaseRequestRepository.findById(requestId)
+                        .orElseThrow(() -> new RuntimeException(
+                                "Purchase Request not found"
+                        ));
+
+        // Make sure the manager who is undoing is the assigned manager
+        if (request.getAssignedManager() == null ||
+                !request.getAssignedManager().getId().equals(managerId)) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You are not authorized to undo this decision"
+            );
+        }
+
+        // Make sure a decision actually exists
+        if (request.getDecisionTime() == null ||
+                request.getPreviousStatus() == null) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "No recent decision is available to undo"
+            );
+        }
+
+        // Check 3-minute undo window
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isAfter(request.getDecisionTime().plusMinutes(3))) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Undo period has expired. The decision is now permanent."
+            );
+        }
+
+        // Restore previous status
+        Status previousStatus =
+                Status.valueOf(request.getPreviousStatus());
+
+        request.setStatus(previousStatus);
+
+        // Restore manager level
+        if (previousStatus == Status.PENDING_MANAGER) {
+            request.setCurrentLevel(
+                    request.getAssignedManager() != null
+                            ? "MANAGER_LEVEL"
+                            : "MANAGER"
+            );
+        }
+
+        // Clear undo information so it cannot be undone repeatedly
+        request.setPreviousStatus(null);
+        request.setDecisionTime(null);
+
+        return purchaseRequestRepository.save(request);
     }
 
 }

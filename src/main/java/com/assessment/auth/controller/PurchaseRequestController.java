@@ -62,13 +62,26 @@ public class PurchaseRequestController {
 
         return ResponseEntity.ok(request);
     }
+    
+ // Undo manager approval/rejection
+    @PostMapping("/undo/{requestId}/{managerId}")
+    public ResponseEntity<PurchaseRequest> undoDecision(
+            @PathVariable Long requestId,
+            @PathVariable Long managerId) {
+
+        PurchaseRequest request =
+                purchaseRequestService.undoDecision(requestId, managerId);
+
+        return ResponseEntity.ok(request);
+    }
 
     // Manager Dashboard
-    @GetMapping("/pending")
-    public ResponseEntity<List<PurchaseRequest>> getPendingRequests() {
+    @GetMapping("/pending/{managerId}")
+    public ResponseEntity<List<PurchaseRequest>> getPendingRequests(
+            @PathVariable Long managerId) {
 
         return ResponseEntity.ok(
-                purchaseRequestService.getPendingRequests()
+                purchaseRequestService.getPendingRequests(managerId)
         );
     }
 

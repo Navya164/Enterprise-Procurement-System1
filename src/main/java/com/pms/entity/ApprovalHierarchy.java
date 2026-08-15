@@ -15,6 +15,9 @@ public class ApprovalHierarchy {
 
     @Column(nullable = false)
     private String approverName;
+    
+    @Column(nullable = false)
+    private Long approverId;
 
     @Column(nullable = false)
     private String approverRole;
@@ -72,5 +75,13 @@ public class ApprovalHierarchy {
 
     public void setApprovalLevel(Integer approvalLevel) {
         this.approvalLevel = approvalLevel;
+    }
+    
+    public Long getApproverId() {
+        return approverId;
+    }
+
+    public void setApproverId(Long approverId) {
+        this.approverId = approverId;
     }
 }
