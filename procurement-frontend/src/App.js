@@ -14,6 +14,7 @@ import ProcurementCategoryManagement from "./pages/ProcurementCategoryManagement
 import DepartmentManagement from "./pages/DepartmentManagement";
 import ApprovalHierarchyManagement from "./pages/ApprovalHierarchyManagement";
 import VendorManagement from "./pages/VendorManagement";
+import ActivityMonitoring from "./pages/ActivityMonitoring";
 
 
 function App() {
@@ -60,6 +61,10 @@ function App() {
         <Route path="/workflow" element={<WorkflowTracker />} />
 
         <Route path="/history" element={<ApprovalHistory />} />
+        <Route
+    path="/activity-monitoring"
+    element={<ActivityMonitoring />}
+/>
         
 
       </Routes>

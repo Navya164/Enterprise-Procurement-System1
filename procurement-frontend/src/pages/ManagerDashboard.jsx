@@ -8,21 +8,83 @@ function ManagerDashboard() {
 
     const navigate = useNavigate();
 
-    const managerId = 2;
+      const user = JSON.parse(localStorage.getItem("user"));
+    const managerId = user?.id;
+    const [available, setAvailable] = useState(user?.available ?? true);
 
     const [requests, setRequests] = useState([]);
     const [remarks, setRemarks] = useState({});
     const [loading, setLoading] = useState(false);
+    const [undoRequest, setUndoRequest] = useState(null);
+    const [undoSeconds, setUndoSeconds] = useState(0);
 
+  const updateAvailability = async () => {
+
+    try {
+
+        const newAvailability = !available;
+
+        console.log("Current availability:", available);
+        console.log("Sending availability:", newAvailability);
+
+        const response = await axios.put(
+            `${API}/availability/${managerId}?available=${newAvailability}`
+        );
+
+        console.log("Backend response:", response.data);
+
+        setAvailable(newAvailability);
+
+        const updatedUser = {
+            ...user,
+            available: newAvailability
+        };
+
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    } catch (error) {
+
+        console.error("Availability update failed:", error);
+        alert("Unable to update availability.");
+
+    }
+};
     useEffect(() => {
         loadPendingRequests();
     }, []);
+
+          useEffect(() => {
+
+          if (!undoRequest || undoSeconds <= 0) {
+              return;
+          }
+
+          const timer = setInterval(() => {
+
+              setUndoSeconds(prev => {
+
+                  if (prev <= 1) {
+                      clearInterval(timer);
+                      setUndoRequest(null);
+                      return 0;
+                  }
+
+                  return prev - 1;
+              });
+
+          }, 1000);
+
+          return () => clearInterval(timer);
+
+      }, [undoRequest, undoSeconds]);
 
     const loadPendingRequests = async () => {
 
         try {
 
-            const response = await axios.get(`${API}/pending`);
+            const response = await axios.get(
+              `${API}/pending/${managerId}`
+          );
 
             setRequests(response.data);
 
@@ -37,6 +99,7 @@ function ManagerDashboard() {
 
     const updateRequest = async (requestId, approved) => {
 
+
         try {
 
             setLoading(true);
@@ -48,17 +111,25 @@ function ManagerDashboard() {
                     remarks:
                         remarks[requestId] ||
                         (approved
-                            ? "Approved by Manager"
-                            : "Rejected by Manager"),
+                            ? `Approved by ${user?.role === "SENIOR_MANAGER" ? "Senior Manager" : "Manager"}`
+    : `Rejected by ${user?.role === "SENIOR_MANAGER" ? "Senior Manager" : "Manager"}`),
                     managerId
                 }
             );
 
             alert(
+        approved
+            ? "Request Approved Successfully!"
+            : "Request Rejected Successfully!"
+    );
+
+            // Start 3-minute undo window
+            setUndoRequest({
+                requestId,
                 approved
-                    ? "Request Approved Successfully!"
-                    : "Request Rejected Successfully!"
-            );
+            });
+
+            setUndoSeconds(180);
 
             loadPendingRequests();
 
@@ -74,6 +145,43 @@ function ManagerDashboard() {
         }
 
     };
+
+    const undoDecision = async () => {
+
+    if (!undoRequest) {
+        return;
+    }
+
+    try {
+
+        setLoading(true);
+
+       await axios.post(
+    `${API}/undo/${undoRequest.requestId}/${managerId}`
+);
+
+        alert("Decision undone successfully.");
+
+        setUndoRequest(null);
+        setUndoSeconds(0);
+
+        loadPendingRequests();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            error.response?.data?.message ||
+            "Unable to undo decision."
+        );
+
+    } finally {
+
+        setLoading(false);
+
+    }
+};
 
     const getPriorityBadge = (priority) => {
 
@@ -149,8 +257,25 @@ return (
               </p>
             </div>
 
+
+
             <div className="col-lg-4 text-lg-end mt-4 mt-lg-0">
-              <button
+                      <button
+              className={`btn ${
+                  available ? "btn-success" : "btn-danger"
+              } btn-lg me-2`}
+              style={{
+                  borderRadius: "50px",
+                  padding: "12px 25px",
+                  fontWeight: "600",
+              }}
+              onClick={updateAvailability}
+          >
+                {available
+                    ? "🟢 Available"
+                    : "🔴 Unavailable"}
+            </button>
+                          <button
                 className="btn btn-light btn-lg"
                 style={{
                   borderRadius: "50px",
@@ -164,6 +289,50 @@ return (
             </div>
           </div>
         </div>
+
+
+{/* ADD UNDO BOX HERE */}
+
+{undoRequest && undoSeconds > 0 && (
+    <div
+        className="alert alert-warning d-flex justify-content-between align-items-center mb-4"
+        style={{
+            borderRadius: "16px",
+            border: "none",
+            boxShadow: "0 8px 20px rgba(0,0,0,.08)"
+        }}
+    >
+        <div>
+            <strong>
+                {undoRequest.approved
+                    ? "Request approved."
+                    : "Request rejected."}
+            </strong>
+
+            <div className="small mt-1">
+                You can undo this decision for{" "}
+                <strong>
+                    {Math.floor(undoSeconds / 60)}:
+                    {String(undoSeconds % 60).padStart(2, "0")}
+                </strong>
+            </div>
+        </div>
+
+        <button
+            className="btn btn-warning fw-bold"
+            onClick={undoDecision}
+            disabled={loading}
+            style={{
+                borderRadius: "10px",
+                padding: "10px 22px"
+            }}
+        >
+            Undo Decision
+        </button>
+    </div>
+)}
+
+
 
         {/* Dashboard Cards */}
         <div className="row g-4 mb-5">
@@ -329,6 +498,8 @@ return (
                         onClick={() =>
                           updateRequest(request.requestId, true)
                         }
+
+
                       >
                         ✅ Approve
                       </button>
@@ -344,6 +515,8 @@ return (
                         onClick={() =>
                           updateRequest(request.requestId, false)
                         }
+
+
                       >
                         ❌ Reject
                       </button>
@@ -353,6 +526,8 @@ return (
                 </div>
               ))
             )}
+
+
           </div>
         </div>
 

@@ -44,6 +44,10 @@ function Login() {
                     navigate("/manager");
                     break;
 
+                    case "SENIOR_MANAGER":
+                    navigate("/manager");
+                    break;
+
                 case "PROCUREMENT_OFFICER":
                     navigate("/procurement");
                     break;

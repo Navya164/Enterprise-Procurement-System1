@@ -89,4 +89,14 @@ public class UserService {
 
         return user;
     }
+
+    public User updateAvailability(Long userId, boolean available) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setAvailable(available);
+
+        return userRepository.save(user);
+    }
 }

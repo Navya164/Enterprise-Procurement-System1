@@ -120,4 +120,28 @@ public interface PurchaseOrderRepository
     long countPurchaseOrdersByStatus(
             @Param("status") PurchaseOrderStatus status
     );
+
+
+    @Query("""
+    SELECT po
+    FROM PurchaseOrder po
+    WHERE
+        (:fromDate IS NULL OR po.createdAt >= :fromDate)
+        AND
+        (:toDate IS NULL OR po.createdAt <= :toDate)
+        AND
+        (:vendor IS NULL OR :vendor = '' OR po.vendorName = :vendor)
+        AND
+        (:status IS NULL OR po.status = :status)
+        AND
+        (:category IS NULL OR :category = '' OR po.purchaseRequest.category = :category)
+    ORDER BY po.createdAt DESC
+""")
+List<PurchaseOrder> findPurchaseOrdersForReport(
+        @Param("fromDate") LocalDateTime fromDate,
+        @Param("toDate") LocalDateTime toDate,
+        @Param("vendor") String vendor,
+        @Param("status") PurchaseOrderStatus status,
+        @Param("category") String category
+);
 }

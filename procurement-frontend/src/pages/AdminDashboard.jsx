@@ -66,6 +66,7 @@ function AdminDashboard() {
 
     };
 
+
     const orderStatusData = [
 
         {
@@ -95,6 +96,7 @@ function AdminDashboard() {
 
     ];
 
+
     const monthlyData = [
 
         { month: "Jan", value: 18 },
@@ -105,6 +107,7 @@ function AdminDashboard() {
         { month: "Jun", value: stats.totalRequests }
 
     ];
+
 
     const radarData = [
 
@@ -136,6 +139,7 @@ function AdminDashboard() {
 
     ];
 
+
     const progressData = [
 
         {
@@ -154,32 +158,29 @@ function AdminDashboard() {
 
     ];
 
-    const COLORS = [
 
+    const COLORS = [
         "#ff9800",
         "#00BCD4",
         "#6c757d",
         "#4CAF50",
         "#F44336"
-
     ];
+
 
     const cardStyle = {
 
         borderRadius: "15px",
-
         padding: "20px",
-
         marginBottom: "20px",
-
         textAlign: "center",
-
         color: "white",
-
         boxShadow: "0 8px 25px rgba(0,0,0,.2)"
 
     };
-        return (
+
+
+    return (
 
         <div
             className="container-fluid py-4"
@@ -189,19 +190,66 @@ function AdminDashboard() {
             }}
         >
 
-            <h2
-                className="text-center fw-bold mb-5"
-                style={{
-                    color: "#0d6efd",
-                    letterSpacing: "1px"
-                }}
-            >
-                📊 Admin Analytics Dashboard
-            </h2>
+            {/* =====================================================
+                HEADER
+            ===================================================== */}
 
-            {/* KPI CARDS */}
+            <div
+                className="d-flex justify-content-between align-items-center mb-5"
+            >
+
+                <h2
+                    className="fw-bold mb-0"
+                    style={{
+                        color: "#0d6efd",
+                        letterSpacing: "1px"
+                    }}
+                >
+                    📊 Admin Analytics Dashboard
+                </h2>
+
+
+                {/* ACTIVITY MONITORING BUTTON */}
+
+                <button
+                    className="btn btn-dark shadow"
+                    style={{
+                        minWidth: "240px",
+                        minHeight: "65px",
+                        borderRadius: "15px",
+                        fontSize: "17px",
+                        fontWeight: "600"
+                    }}
+                    onClick={() =>
+                        navigate("/activity-monitoring")
+                    }
+                >
+
+                    📋 Activity Monitoring
+
+                    <div
+                        style={{
+                            fontSize: "12px",
+                            fontWeight: "400",
+                            marginTop: "4px"
+                        }}
+                    >
+                        View system activity and audit logs
+                    </div>
+
+                </button>
+
+            </div>
+
+
+            {/* =====================================================
+                KPI CARDS
+            ===================================================== */}
 
             <div className="row g-4 mb-5">
+
+
+                {/* TOTAL USERS */}
 
                 <div className="col-lg-3 col-md-6">
 
@@ -215,7 +263,9 @@ function AdminDashboard() {
 
                         <h1>👥</h1>
 
-                        <h3>{stats.totalUsers}</h3>
+                        <h3>
+                            {stats.totalUsers}
+                        </h3>
 
                         <p className="mb-0">
                             Total Users
@@ -224,6 +274,9 @@ function AdminDashboard() {
                     </div>
 
                 </div>
+
+
+                {/* PURCHASE REQUESTS */}
 
                 <div className="col-lg-3 col-md-6">
 
@@ -237,7 +290,9 @@ function AdminDashboard() {
 
                         <h1>📦</h1>
 
-                        <h3>{stats.totalRequests}</h3>
+                        <h3>
+                            {stats.totalRequests}
+                        </h3>
 
                         <p className="mb-0">
                             Purchase Requests
@@ -246,6 +301,9 @@ function AdminDashboard() {
                     </div>
 
                 </div>
+
+
+                {/* PENDING */}
 
                 <div className="col-lg-3 col-md-6">
 
@@ -261,20 +319,23 @@ function AdminDashboard() {
 
                         <h3>
 
-                            {stats.pendingManager +
-                                stats.pendingProcurement}
+                            {
+                                stats.pendingManager +
+                                stats.pendingProcurement
+                            }
 
                         </h3>
 
                         <p className="mb-0">
-
                             Pending Approvals
-
                         </p>
 
                     </div>
 
                 </div>
+
+
+                {/* COMPLETED */}
 
                 <div className="col-lg-3 col-md-6">
 
@@ -288,12 +349,12 @@ function AdminDashboard() {
 
                         <h1>✅</h1>
 
-                        <h3>{stats.completed}</h3>
+                        <h3>
+                            {stats.completed}
+                        </h3>
 
                         <p className="mb-0">
-
                             Completed Orders
-
                         </p>
 
                     </div>
@@ -302,63 +363,101 @@ function AdminDashboard() {
 
             </div>
 
-            {/* MASTER DATA */}
+
+            {/* =====================================================
+                PROCUREMENT MASTER DATA
+            ===================================================== */}
 
             <div className="card shadow-lg border-0 mb-5">
 
                 <div className="card-header bg-dark text-white">
 
-                    <h4>
-
+                    <h4 className="mb-0">
                         ⚙ Procurement Master Data
-
                     </h4>
 
                 </div>
 
+
                 <div className="list-group list-group-flush">
 
+
+                    {/* VENDOR MANAGEMENT */}
+
                     <button
                         className="list-group-item list-group-item-action d-flex justify-content-between"
-                        onClick={() => navigate("/admin/vendors")}
+                        onClick={() =>
+                            navigate("/admin/vendors")
+                        }
                     >
 
-                        <span>🏭 Vendor Management</span>
+                        <span>
+                            🏭 Vendor Management
+                        </span>
 
-                        <span>➜</span>
+                        <span>
+                            ➜
+                        </span>
 
                     </button>
 
+
+                    {/* PROCUREMENT CATEGORIES */}
+
                     <button
                         className="list-group-item list-group-item-action d-flex justify-content-between"
-                        onClick={() => navigate("/admin/categories")}
+                        onClick={() =>
+                            navigate("/admin/categories")
+                        }
                     >
 
-                        <span>📦 Procurement Categories</span>
+                        <span>
+                            📦 Procurement Categories
+                        </span>
 
-                        <span>➜</span>
+                        <span>
+                            ➜
+                        </span>
 
                     </button>
 
+
+                    {/* DEPARTMENT MANAGEMENT */}
+
                     <button
                         className="list-group-item list-group-item-action d-flex justify-content-between"
-                        onClick={() => navigate("/admin/departments")}
+                        onClick={() =>
+                            navigate("/admin/departments")
+                        }
                     >
 
-                        <span>🏢 Department Management</span>
+                        <span>
+                            🏢 Department Management
+                        </span>
 
-                        <span>➜</span>
+                        <span>
+                            ➜
+                        </span>
 
                     </button>
 
+
+                    {/* APPROVAL HIERARCHY */}
+
                     <button
                         className="list-group-item list-group-item-action d-flex justify-content-between"
-                        onClick={() => navigate("/admin/approval-hierarchy")}
+                        onClick={() =>
+                            navigate("/admin/approval-hierarchy")
+                        }
                     >
 
-                        <span>👥 Approval Hierarchy</span>
+                        <span>
+                            👥 Approval Hierarchy
+                        </span>
 
-                        <span>➜</span>
+                        <span>
+                            ➜
+                        </span>
 
                     </button>
 
@@ -366,13 +465,24 @@ function AdminDashboard() {
 
             </div>
 
+
+            {/* =====================================================
+                PROCUREMENT ANALYTICS
+            ===================================================== */}
+
             <h3 className="text-center mb-4">
-
                 📈 Procurement Analytics
-
             </h3>
 
+
+            {/* =====================================================
+                FIRST ROW
+            ===================================================== */}
+
             <div className="row">
+
+
+                {/* PURCHASE STATUS */}
 
                 <div className="col-lg-6 mb-4">
 
@@ -381,10 +491,9 @@ function AdminDashboard() {
                         <div className="card-body">
 
                             <h5 className="text-center">
-
                                 Purchase Status Distribution
-
                             </h5>
+
 
                             <ResponsiveContainer
                                 width="100%"
@@ -402,7 +511,6 @@ function AdminDashboard() {
                                     >
 
                                         {
-
                                             orderStatusData.map(
                                                 (entry, index) => (
 
@@ -410,15 +518,14 @@ function AdminDashboard() {
                                                         key={index}
                                                         fill={
                                                             COLORS[
-                                                            index %
-                                                            COLORS.length
+                                                                index %
+                                                                COLORS.length
                                                             ]
                                                         }
                                                     />
 
                                                 )
                                             )
-
                                         }
 
                                     </Pie>
@@ -436,17 +543,20 @@ function AdminDashboard() {
                     </div>
 
                 </div>
-                                <div className="col-lg-6 mb-4">
+
+
+                {/* PROCUREMENT PROGRESS */}
+
+                <div className="col-lg-6 mb-4">
 
                     <div className="card shadow border-0">
 
                         <div className="card-body">
 
                             <h5 className="text-center">
-
                                 Procurement Progress
-
                             </h5>
+
 
                             <ResponsiveContainer
                                 width="100%"
@@ -461,7 +571,9 @@ function AdminDashboard() {
                                         strokeDasharray="3 3"
                                     />
 
-                                    <XAxis dataKey="name" />
+                                    <XAxis
+                                        dataKey="name"
+                                    />
 
                                     <YAxis />
 
@@ -472,7 +584,7 @@ function AdminDashboard() {
                                     <Bar
                                         dataKey="value"
                                         fill="#0d6efd"
-                                        radius={[8,8,0,0]}
+                                        radius={[8, 8, 0, 0]}
                                     />
 
                                 </BarChart>
@@ -487,9 +599,15 @@ function AdminDashboard() {
 
             </div>
 
-            {/* SECOND ROW */}
+
+            {/* =====================================================
+                SECOND ROW
+            ===================================================== */}
 
             <div className="row">
+
+
+                {/* MONTHLY REQUESTS */}
 
                 <div className="col-lg-6 mb-4">
 
@@ -498,10 +616,9 @@ function AdminDashboard() {
                         <div className="card-body">
 
                             <h5 className="text-center">
-
                                 Monthly Purchase Requests
-
                             </h5>
+
 
                             <ResponsiveContainer
                                 width="100%"
@@ -512,15 +629,19 @@ function AdminDashboard() {
                                     data={monthlyData}
                                 >
 
-                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <CartesianGrid
+                                        strokeDasharray="3 3"
+                                    />
 
-                                    <XAxis dataKey="month"/>
+                                    <XAxis
+                                        dataKey="month"
+                                    />
 
-                                    <YAxis/>
+                                    <YAxis />
 
-                                    <Tooltip/>
+                                    <Tooltip />
 
-                                    <Legend/>
+                                    <Legend />
 
                                     <Line
                                         type="monotone"
@@ -539,6 +660,9 @@ function AdminDashboard() {
 
                 </div>
 
+
+                {/* PROCUREMENT TREND */}
+
                 <div className="col-lg-6 mb-4">
 
                     <div className="card shadow border-0">
@@ -546,10 +670,9 @@ function AdminDashboard() {
                         <div className="card-body">
 
                             <h5 className="text-center">
-
                                 Procurement Trend
-
                             </h5>
+
 
                             <ResponsiveContainer
                                 width="100%"
@@ -560,13 +683,17 @@ function AdminDashboard() {
                                     data={monthlyData}
                                 >
 
-                                    <CartesianGrid strokeDasharray="3 3"/>
+                                    <CartesianGrid
+                                        strokeDasharray="3 3"
+                                    />
 
-                                    <XAxis dataKey="month"/>
+                                    <XAxis
+                                        dataKey="month"
+                                    />
 
-                                    <YAxis/>
+                                    <YAxis />
 
-                                    <Tooltip/>
+                                    <Tooltip />
 
                                     <Area
                                         type="monotone"
@@ -587,9 +714,15 @@ function AdminDashboard() {
 
             </div>
 
-            {/* THIRD ROW */}
+
+            {/* =====================================================
+                THIRD ROW
+            ===================================================== */}
 
             <div className="row">
+
+
+                {/* PERFORMANCE RADAR */}
 
                 <div className="col-lg-6 mb-4">
 
@@ -598,10 +731,9 @@ function AdminDashboard() {
                         <div className="card-body">
 
                             <h5 className="text-center">
-
                                 Procurement Performance Radar
-
                             </h5>
+
 
                             <ResponsiveContainer
                                 width="100%"
@@ -612,13 +744,13 @@ function AdminDashboard() {
                                     data={radarData}
                                 >
 
-                                    <PolarGrid/>
+                                    <PolarGrid />
 
                                     <PolarAngleAxis
                                         dataKey="subject"
                                     />
 
-                                    <PolarRadiusAxis/>
+                                    <PolarRadiusAxis />
 
                                     <Radar
                                         dataKey="A"
@@ -627,7 +759,7 @@ function AdminDashboard() {
                                         fillOpacity={0.6}
                                     />
 
-                                    <Legend/>
+                                    <Legend />
 
                                 </RadarChart>
 
@@ -639,6 +771,9 @@ function AdminDashboard() {
 
                 </div>
 
+
+                {/* COMPLETION PERCENTAGE */}
+
                 <div className="col-lg-6 mb-4">
 
                     <div className="card shadow border-0">
@@ -646,10 +781,9 @@ function AdminDashboard() {
                         <div className="card-body">
 
                             <h5 className="text-center">
-
                                 Completion Percentage
-
                             </h5>
+
 
                             <ResponsiveContainer
                                 width="100%"
@@ -669,18 +803,17 @@ function AdminDashboard() {
                                         fill="#198754"
                                     />
 
-                                    <Legend/>
+                                    <Legend />
 
-                                    <Tooltip/>
+                                    <Tooltip />
 
                                 </RadialBarChart>
 
                             </ResponsiveContainer>
 
+
                             <h2 className="text-center text-success mt-3">
-
                                 {progressData[0].value}%
-
                             </h2>
 
                         </div>
@@ -690,9 +823,16 @@ function AdminDashboard() {
                 </div>
 
             </div>
-                        {/* RECENT ACTIVITY & INSIGHTS */}
+
+
+            {/* =====================================================
+                RECENT ACTIVITY & INSIGHTS
+            ===================================================== */}
 
             <div className="row">
+
+
+                {/* RECENT PROCUREMENT ACTIVITY */}
 
                 <div className="col-lg-6 mb-4">
 
@@ -706,43 +846,64 @@ function AdminDashboard() {
 
                         </div>
 
+
                         <div className="card-body">
 
                             <ul className="list-group list-group-flush">
 
+
                                 <li className="list-group-item">
+
                                     ✅ Purchase Requests Completed :
+
                                     <span className="float-end fw-bold text-success">
                                         {stats.completed}
                                     </span>
+
                                 </li>
 
+
                                 <li className="list-group-item">
+
                                     ⏳ Pending Manager Approvals :
+
                                     <span className="float-end fw-bold text-warning">
                                         {stats.pendingManager}
                                     </span>
+
                                 </li>
 
+
                                 <li className="list-group-item">
+
                                     🏭 Pending Procurement :
+
                                     <span className="float-end fw-bold text-info">
                                         {stats.pendingProcurement}
                                     </span>
+
                                 </li>
 
+
                                 <li className="list-group-item">
+
                                     🚚 Orders In Progress :
+
                                     <span className="float-end fw-bold text-secondary">
                                         {stats.procurementInProgress}
                                     </span>
+
                                 </li>
 
+
                                 <li className="list-group-item">
+
                                     ❌ Rejected Requests :
+
                                     <span className="float-end fw-bold text-danger">
                                         {stats.rejected}
                                     </span>
+
                                 </li>
 
                             </ul>
@@ -752,6 +913,9 @@ function AdminDashboard() {
                     </div>
 
                 </div>
+
+
+                {/* PROCUREMENT INSIGHTS */}
 
                 <div className="col-lg-6 mb-4">
 
@@ -765,22 +929,30 @@ function AdminDashboard() {
 
                         </div>
 
+
                         <div className="card-body">
+
 
                             <div className="alert alert-success">
 
-                                <strong>Completion Rate</strong>
+                                <strong>
+                                    Completion Rate
+                                </strong>
 
                                 <br />
 
-                                {progressData[0].value}% of purchase requests have
+                                {progressData[0].value}%
+                                of purchase requests have
                                 been successfully completed.
 
                             </div>
 
+
                             <div className="alert alert-warning">
 
-                                <strong>Pending Actions</strong>
+                                <strong>
+                                    Pending Actions
+                                </strong>
 
                                 <br />
 
@@ -788,20 +960,27 @@ function AdminDashboard() {
                                     stats.pendingManager +
                                     stats.pendingProcurement
                                 }{" "}
+
                                 requests require approval.
 
                             </div>
 
+
                             <div className="alert alert-info">
 
-                                <strong>Operational Efficiency</strong>
+                                <strong>
+                                    Operational Efficiency
+                                </strong>
 
                                 <br />
 
-                                Procurement workflow is currently handling{" "}
-                                {stats.procurementInProgress} active orders.
+                                Procurement workflow is currently
+                                handling{" "}
+                                {stats.procurementInProgress}
+                                {" "}active orders.
 
                             </div>
+
 
                         </div>
 
@@ -811,7 +990,10 @@ function AdminDashboard() {
 
             </div>
 
-            {/* EXECUTIVE SUMMARY */}
+
+            {/* =====================================================
+                EXECUTIVE SUMMARY
+            ===================================================== */}
 
             <div className="card shadow-lg border-0 mb-5">
 
@@ -823,9 +1005,11 @@ function AdminDashboard() {
 
                 </div>
 
+
                 <div className="card-body">
 
                     <div className="row text-center">
+
 
                         <div className="col-md-3">
 
@@ -833,9 +1017,12 @@ function AdminDashboard() {
                                 {stats.totalUsers}
                             </h2>
 
-                            <p>Total System Users</p>
+                            <p>
+                                Total System Users
+                            </p>
 
                         </div>
+
 
                         <div className="col-md-3">
 
@@ -843,9 +1030,12 @@ function AdminDashboard() {
                                 {stats.totalRequests}
                             </h2>
 
-                            <p>Purchase Requests</p>
+                            <p>
+                                Purchase Requests
+                            </p>
 
                         </div>
+
 
                         <div className="col-md-3">
 
@@ -858,21 +1048,25 @@ function AdminDashboard() {
 
                             </h2>
 
-                            <p>Pending Approvals</p>
+                            <p>
+                                Pending Approvals
+                            </p>
 
                         </div>
+
 
                         <div className="col-md-3">
 
                             <h2 className="text-danger">
-
                                 {stats.rejected}
-
                             </h2>
 
-                            <p>Rejected Requests</p>
+                            <p>
+                                Rejected Requests
+                            </p>
 
                         </div>
+
 
                     </div>
 
@@ -880,7 +1074,10 @@ function AdminDashboard() {
 
             </div>
 
-            {/* FOOTER */}
+
+            {/* =====================================================
+                FOOTER
+            ===================================================== */}
 
             <div
                 className="text-center text-muted mb-4"
@@ -892,6 +1089,7 @@ function AdminDashboard() {
                 Procurement Management System • Admin Analytics Dashboard
 
             </div>
+
 
         </div>
 

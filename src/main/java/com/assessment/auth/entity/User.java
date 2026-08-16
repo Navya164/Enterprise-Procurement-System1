@@ -22,6 +22,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
+    private boolean available = true;
+
     private LocalDateTime createdDate;
 
     public User() {
@@ -73,6 +76,14 @@ public class User {
 
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate=createdDate;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
 }

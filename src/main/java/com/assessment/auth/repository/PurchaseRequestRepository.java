@@ -21,6 +21,10 @@ public interface PurchaseRequestRepository
 
     List<PurchaseRequest> findByEmployee(User employee);
 
+    List<PurchaseRequest> findByAssignedManagerAndStatus(
+            User assignedManager,
+            Status status
+    );
 
     long countByEmployeeIdAndStatusIn(
             Long employeeId,

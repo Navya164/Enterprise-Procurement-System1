@@ -15,15 +15,19 @@ public class PurchaseRequest {
     @JoinColumn(name = "employee_id")
     private User employee;
 
+    @ManyToOne
+    @JoinColumn(name = "assigned_manager_id")
+    private User assignedManager;
+
     private String title;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
     private Integer quantity;
-    
+
     private Double amount;
-    
+
     private String category;
 
     @Enumerated(EnumType.STRING)
@@ -36,9 +40,15 @@ public class PurchaseRequest {
 
     private LocalDateTime approvalDate;
 
+    private String previousStatus;
+
+    private LocalDateTime decisionTime;
+
     private LocalDateTime expiryDate;
 
     private LocalDateTime createdDate;
+
+    private LocalDateTime managerUnavailableSince;
 
     @Column(columnDefinition = "TEXT")
     private String remarks;
@@ -156,7 +166,7 @@ public class PurchaseRequest {
         this.remarks = remarks;
     }
 
-    
+
     public Double getAmount() {
         return amount;
     }
@@ -165,4 +175,35 @@ public class PurchaseRequest {
         this.amount = amount;
     }
 
+    public User getAssignedManager() {
+        return assignedManager;
+    }
+
+    public void setAssignedManager(User assignedManager) {
+        this.assignedManager = assignedManager;
+    }
+
+    public String getPreviousStatus() {
+        return previousStatus;
+    }
+
+    public void setPreviousStatus(String previousStatus) {
+        this.previousStatus = previousStatus;
+    }
+
+    public LocalDateTime getDecisionTime() {
+        return decisionTime;
+    }
+
+    public void setDecisionTime(LocalDateTime decisionTime) {
+        this.decisionTime = decisionTime;
+    }
+
+    public LocalDateTime getManagerUnavailableSince() {
+        return managerUnavailableSince;
+    }
+
+    public void setManagerUnavailableSince(LocalDateTime managerUnavailableSince) {
+        this.managerUnavailableSince = managerUnavailableSince;
+    }
 }
