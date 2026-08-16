@@ -8,7 +8,8 @@ function ManagerDashboard() {
 
     const navigate = useNavigate();
 
-    const managerId = 2;
+      const user = JSON.parse(localStorage.getItem("user"));
+    const managerId = user?.id;
 
     const [requests, setRequests] = useState([]);
     const [remarks, setRemarks] = useState({});
@@ -78,8 +79,8 @@ function ManagerDashboard() {
                     remarks:
                         remarks[requestId] ||
                         (approved
-                            ? "Approved by Manager"
-                            : "Rejected by Manager"),
+                            ? `Approved by ${user?.role === "SENIOR_MANAGER" ? "Senior Manager" : "Manager"}`
+    : `Rejected by ${user?.role === "SENIOR_MANAGER" ? "Senior Manager" : "Manager"}`),
                     managerId
                 }
             );

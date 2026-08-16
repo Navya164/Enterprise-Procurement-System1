@@ -203,6 +203,10 @@ function Register() {
                                             Manager
                                         </option>
 
+                                        <option value="SENIOR_MANAGER">
+                                            Senior Manager
+                                        </option>
+
                                         <option value="PROCUREMENT_OFFICER">
                                             Procurement Officer
                                         </option>

@@ -19,6 +19,7 @@ import com.assessment.auth.repository.PurchaseRequestRepository;
 import com.assessment.auth.repository.UserRepository;
 import com.pms.entity.ApprovalHierarchy;
 import com.pms.repository.ApprovalHierarchyRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @Service
 public class PurchaseRequestService {
@@ -40,9 +41,9 @@ public class PurchaseRequestService {
 	
 	private void assignManager(PurchaseRequest request) {
 
-		List<ApprovalHierarchy> hierarchy =
-		        approvalHierarchyRepository
-		                .findAllByOrderByApprovalLevelAsc();
+	    List<ApprovalHierarchy> hierarchy =
+	            approvalHierarchyRepository
+	                    .findAllByOrderByApprovalLevelAsc();
 
 	    for (ApprovalHierarchy level : hierarchy) {
 
@@ -51,9 +52,11 @@ public class PurchaseRequestService {
 	                        .orElse(null);
 
 	        if (manager != null
-	                && manager.getRole() == Role.MANAGER
-	                && manager.isAvailable()) {
+	                && manager.getRole() == Role.MANAGER) {
 
+	            // Assign the manager even if unavailable.
+	            // If unavailable, the 48-hour escalation timer
+	            // will handle it.
 	            request.setAssignedManager(manager);
 
 	            request.setCurrentLevel(
@@ -65,7 +68,7 @@ public class PurchaseRequestService {
 	    }
 
 	    throw new RuntimeException(
-	            "No available manager found for this request"
+	            "No manager found for this request"
 	    );
 	}
 	
@@ -73,51 +76,46 @@ public class PurchaseRequestService {
 
 	    User currentManager = request.getAssignedManager();
 
+	    // Manager is available -> reset unavailable timer
 	    if (currentManager != null && currentManager.isAvailable()) {
+	        request.setManagerUnavailableSince(null);
 	        return;
 	    }
 
-	    List<ApprovalHierarchy> hierarchy =
-	            approvalHierarchyRepository
-	                    .findAllByOrderByApprovalLevelAsc();
-	    Integer currentLevel = 0;
-
-	    if (request.getCurrentLevel() != null &&
-	            request.getCurrentLevel().startsWith("MANAGER_LEVEL_")) {
-
-	        currentLevel = Integer.parseInt(
-	                request.getCurrentLevel()
-	                        .replace("MANAGER_LEVEL_", "")
-	        );
+	    // Manager is unavailable for the first time
+	    if (request.getManagerUnavailableSince() == null) {
+	        request.setManagerUnavailableSince(LocalDateTime.now());
+	        return;
 	    }
 
-	    for (ApprovalHierarchy level : hierarchy) {
+	    // Check whether 48 hours have passed
+	    LocalDateTime escalationTime =
+	            request.getManagerUnavailableSince().plusHours(48);
 
-	        if (level.getApprovalLevel() <= currentLevel) {
-	            continue;
-	        }
-
-	        User manager =
-	                userRepository.findById(level.getApproverId())
-	                        .orElse(null);
-
-	        if (manager != null
-	                && manager.getRole() == Role.MANAGER
-	                && manager.isAvailable()) {
-
-	            request.setAssignedManager(manager);
-
-	            request.setCurrentLevel(
-	                    "MANAGER_LEVEL_" + level.getApprovalLevel()
-	            );
-
-	            return;
-	        }
+	    if (LocalDateTime.now().isBefore(escalationTime)) {
+	        // Still within 48 hours -> keep request pending
+	        return;
 	    }
 
-	    throw new RuntimeException(
-	            "No higher-level available manager found"
-	    );
+	    // 48 hours completed -> find Senior Manager
+	    User seniorManager = userRepository
+	            .findAll()
+	            .stream()
+	            .filter(user ->
+	                    user.getRole() == Role.SENIOR_MANAGER
+	                    && user.isAvailable()
+	            )
+	            .findFirst()
+	            .orElseThrow(() -> new RuntimeException(
+	                    "No available senior manager found"
+	            ));
+
+	    // Escalate request
+	    request.setAssignedManager(seniorManager);
+	    request.setCurrentLevel("SENIOR_MANAGER");
+
+	    // Reset timer after escalation
+	    request.setManagerUnavailableSince(null);
 	}
 
     // Employee creates purchase request
@@ -164,6 +162,13 @@ public class PurchaseRequestService {
         request.setStatus(Status.PENDING_MANAGER);
 
         assignManager(request);
+
+        // Start 48-hour escalation timer if assigned manager is unavailable
+        if (request.getAssignedManager() == null ||
+                !request.getAssignedManager().isAvailable()) {
+
+            request.setManagerUnavailableSince(LocalDateTime.now());
+        }
 
         return purchaseRequestRepository.save(request);
     }
@@ -240,10 +245,12 @@ public class PurchaseRequestService {
                         "Manager not found"
                 ));
 
-        if (manager.getRole() != Role.MANAGER) {
+        if (manager.getRole() != Role.MANAGER &&
+                manager.getRole() != Role.SENIOR_MANAGER) {
+
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
-                    "User is not a manager"
+                    "User is not authorized to view manager requests"
             );
         }
 
@@ -253,8 +260,10 @@ public class PurchaseRequestService {
                         Status.PENDING_MANAGER
                 );
 
-        for (PurchaseRequest request : requests) {
-            reassignIfManagerUnavailable(request);
+        if (manager.getRole() == Role.MANAGER) {
+            for (PurchaseRequest request : requests) {
+                reassignIfManagerUnavailable(request);
+            }
         }
 
         return purchaseRequestRepository.saveAll(requests);
@@ -424,6 +433,25 @@ public class PurchaseRequestService {
         request.setDecisionTime(null);
 
         return purchaseRequestRepository.save(request);
+    }
+    @Scheduled(fixedRate = 60000)
+    public void checkManagerEscalations() {
+
+        List<PurchaseRequest> requests =
+                purchaseRequestRepository.findByStatus(
+                        Status.PENDING_MANAGER
+                );
+
+        for (PurchaseRequest request : requests) {
+
+            User manager = request.getAssignedManager();
+
+            if (manager == null || !manager.isAvailable()) {
+                reassignIfManagerUnavailable(request);
+            }
+        }
+
+        purchaseRequestRepository.saveAll(requests);
     }
 
 }
