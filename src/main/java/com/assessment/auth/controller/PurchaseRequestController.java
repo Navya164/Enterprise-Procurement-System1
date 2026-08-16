@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.assessment.auth.entity.User;
+import com.assessment.auth.service.UserService;
 import com.assessment.auth.dto.ApprovalDTO;
 import com.assessment.auth.dto.PurchaseRequestDTO;
 import com.assessment.auth.entity.PurchaseRequest;
@@ -17,11 +19,16 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "http://localhost:3000")
 public class PurchaseRequestController {
 
-    private final PurchaseRequestService purchaseRequestService;
+	private final PurchaseRequestService purchaseRequestService;
+	private final UserService userService;
 
-    public PurchaseRequestController(PurchaseRequestService purchaseRequestService) {
-        this.purchaseRequestService = purchaseRequestService;
-    }
+	public PurchaseRequestController(
+	        PurchaseRequestService purchaseRequestService,
+	        UserService userService) {
+
+	    this.purchaseRequestService = purchaseRequestService;
+	    this.userService = userService;
+	}
 
     // Test API
     @GetMapping("/test")
@@ -121,6 +128,17 @@ public class PurchaseRequestController {
 
         return ResponseEntity.ok(
                 purchaseRequestService.getRequestById(requestId)
+        );
+    }
+    
+ // Manager availability
+    @PutMapping("/availability/{managerId}")
+    public ResponseEntity<User> updateAvailability(
+            @PathVariable Long managerId,
+            @RequestParam boolean available) {
+
+        return ResponseEntity.ok(
+                userService.updateAvailability(managerId, available)
         );
     }
 }

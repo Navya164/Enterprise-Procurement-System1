@@ -10,6 +10,7 @@ function ManagerDashboard() {
 
       const user = JSON.parse(localStorage.getItem("user"));
     const managerId = user?.id;
+    const [available, setAvailable] = useState(user?.available ?? true);
 
     const [requests, setRequests] = useState([]);
     const [remarks, setRemarks] = useState({});
@@ -17,6 +18,37 @@ function ManagerDashboard() {
     const [undoRequest, setUndoRequest] = useState(null);
     const [undoSeconds, setUndoSeconds] = useState(0);
 
+  const updateAvailability = async () => {
+
+    try {
+
+        const newAvailability = !available;
+
+        console.log("Current availability:", available);
+        console.log("Sending availability:", newAvailability);
+
+        const response = await axios.put(
+            `${API}/availability/${managerId}?available=${newAvailability}`
+        );
+
+        console.log("Backend response:", response.data);
+
+        setAvailable(newAvailability);
+
+        const updatedUser = {
+            ...user,
+            available: newAvailability
+        };
+
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    } catch (error) {
+
+        console.error("Availability update failed:", error);
+        alert("Unable to update availability.");
+
+    }
+};
     useEffect(() => {
         loadPendingRequests();
     }, []);
@@ -228,7 +260,22 @@ return (
 
 
             <div className="col-lg-4 text-lg-end mt-4 mt-lg-0">
-              <button
+                      <button
+              className={`btn ${
+                  available ? "btn-success" : "btn-danger"
+              } btn-lg me-2`}
+              style={{
+                  borderRadius: "50px",
+                  padding: "12px 25px",
+                  fontWeight: "600",
+              }}
+              onClick={updateAvailability}
+          >
+                {available
+                    ? "🟢 Available"
+                    : "🔴 Unavailable"}
+            </button>
+                          <button
                 className="btn btn-light btn-lg"
                 style={{
                   borderRadius: "50px",
