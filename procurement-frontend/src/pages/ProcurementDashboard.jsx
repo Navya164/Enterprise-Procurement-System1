@@ -166,7 +166,24 @@ function ProcurementDashboard() {
                 SUPPLIER_API
             );
 
-            setSuppliers(response.data || []);
+            /*
+             * Procurement should only work with ACTIVE suppliers.
+             *
+             * The /suppliers endpoint intentionally returns all suppliers
+             * because Admin Vendor Management must be able to view both
+             * ACTIVE and INACTIVE vendors.
+             *
+             * Here we keep only ACTIVE suppliers for procurement operations.
+             * This means an INACTIVE or BLOCKED supplier will no longer
+             * appear in the Procurement Dashboard vendor list.
+             */
+            const activeSuppliers = (response.data || []).filter(
+                supplier =>
+                    String(supplier.supplierStatus || "").toUpperCase() ===
+                    "ACTIVE"
+            );
+
+            setSuppliers(activeSuppliers);
 
         } catch (error) {
 
