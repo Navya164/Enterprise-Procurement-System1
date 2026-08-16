@@ -1,31 +1,37 @@
 package com.assessment.auth.dto;
 
 import com.pms.entity.PurchaseOrderStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
-/**
- * What we send back to the client. Keeps entity internals
- * (like the full PurchaseRequest object) out of the API response.
- */
 public class PurchaseOrderResponseDTO {
 
     private Long id;
+
     private String poNumber;
+
     private Long purchaseRequestId;
+
     private String vendorName;
+
     private String vendorEmail;
-    private String itemName;
-    private Integer quantity;
-    private BigDecimal unitPrice;
+
+    private List<PurchaseOrderItemResponseDTO> items;
+
     private BigDecimal totalAmount;
+
     private PurchaseOrderStatus status;
+
     private LocalDate expectedDeliveryDate;
+
     private LocalDate deliveryDate;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
-    private Integer deliveredQuantity;
 
     public Long getId() {
         return id;
@@ -67,28 +73,12 @@ public class PurchaseOrderResponseDTO {
         this.vendorEmail = vendorEmail;
     }
 
-    public String getItemName() {
-        return itemName;
+    public List<PurchaseOrderItemResponseDTO> getItems() {
+        return items;
     }
 
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(BigDecimal unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setItems(List<PurchaseOrderItemResponseDTO> items) {
+        this.items = items;
     }
 
     public BigDecimal getTotalAmount() {
@@ -137,13 +127,5 @@ public class PurchaseOrderResponseDTO {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public Integer getDeliveredQuantity() {
-        return deliveredQuantity;
-    }
-
-    public void setDeliveredQuantity(Integer deliveredQuantity) {
-        this.deliveredQuantity = deliveredQuantity;
     }
 }

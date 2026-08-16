@@ -6,7 +6,9 @@ import com.assessment.auth.dto.MonthlySpendDTO;
 import com.assessment.auth.dto.ProcurementAnalyticsResponseDTO;
 import com.assessment.auth.dto.ProcurementPerformanceDTO;
 import com.assessment.auth.dto.SpendBreakdownDTO;
+
 import com.pms.entity.PurchaseOrder;
+import com.pms.entity.PurchaseOrderItem;
 import com.pms.entity.PurchaseOrderStatus;
 import com.pms.repository.PurchaseOrderRepository;
 
@@ -29,22 +31,24 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         this.purchaseOrderRepository = purchaseOrderRepository;
     }
 
+
+    // ============================================================
+    // MAIN ANALYTICS
+    // ============================================================
+
     @Override
     public ProcurementAnalyticsResponseDTO getProcurementAnalytics() {
 
         /*
-         * CLOSED is the completed state in the existing
-         * Purchase Order workflow.
+         * CLOSED is treated as the completed procurement state.
          */
         PurchaseOrderStatus completedStatus =
                 PurchaseOrderStatus.CLOSED;
 
 
-        /*
-         * ========================================================
-         * TOTAL PROCUREMENT SPEND
-         * ========================================================
-         */
+        // ========================================================
+        // TOTAL PROCUREMENT SPEND
+        // ========================================================
 
         BigDecimal totalSpend =
                 purchaseOrderRepository.getTotalSpendByStatus(
@@ -56,16 +60,9 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         }
 
 
-        /*
-         * ========================================================
-         * VENDOR-WISE SPEND
-         * ========================================================
-         *
-         * Repository returns:
-         *
-         * [0] -> vendor name
-         * [1] -> total spend
-         */
+        // ========================================================
+        // VENDOR-WISE SPEND
+        // ========================================================
 
         List<Object[]> vendorRows =
                 purchaseOrderRepository.getVendorWiseSpend(
@@ -75,35 +72,31 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         List<SpendBreakdownDTO> vendorSpend =
                 new ArrayList<>();
 
-        for (Object[] row : vendorRows) {
+        if (vendorRows != null) {
 
-            String vendorName =
-                    row[0] == null
-                            ? "Unknown Vendor"
-                            : row[0].toString();
+            for (Object[] row : vendorRows) {
 
-            BigDecimal spend =
-                    toBigDecimal(row[1]);
+                String vendorName =
+                        row[0] == null
+                                ? "Unknown Vendor"
+                                : row[0].toString();
 
-            vendorSpend.add(
-                    new SpendBreakdownDTO(
-                            vendorName,
-                            spend
-                    )
-            );
+                BigDecimal spend =
+                        toBigDecimal(row[1]);
+
+                vendorSpend.add(
+                        new SpendBreakdownDTO(
+                                vendorName,
+                                spend
+                        )
+                );
+            }
         }
 
 
-        /*
-         * ========================================================
-         * CATEGORY-WISE SPEND
-         * ========================================================
-         *
-         * Repository returns:
-         *
-         * [0] -> category
-         * [1] -> total spend
-         */
+        // ========================================================
+        // CATEGORY-WISE SPEND
+        // ========================================================
 
         List<Object[]> categoryRows =
                 purchaseOrderRepository.getCategoryWiseSpend(
@@ -113,36 +106,31 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         List<SpendBreakdownDTO> categorySpend =
                 new ArrayList<>();
 
-        for (Object[] row : categoryRows) {
+        if (categoryRows != null) {
 
-            String categoryName =
-                    row[0] == null
-                            ? "Unknown Category"
-                            : row[0].toString();
+            for (Object[] row : categoryRows) {
 
-            BigDecimal spend =
-                    toBigDecimal(row[1]);
+                String categoryName =
+                        row[0] == null
+                                ? "Unknown Category"
+                                : row[0].toString();
 
-            categorySpend.add(
-                    new SpendBreakdownDTO(
-                            categoryName,
-                            spend
-                    )
-            );
+                BigDecimal spend =
+                        toBigDecimal(row[1]);
+
+                categorySpend.add(
+                        new SpendBreakdownDTO(
+                                categoryName,
+                                spend
+                        )
+                );
+            }
         }
 
 
-        /*
-         * ========================================================
-         * MONTHLY SPEND
-         * ========================================================
-         *
-         * Repository returns:
-         *
-         * [0] -> year
-         * [1] -> month
-         * [2] -> total spend
-         */
+        // ========================================================
+        // MONTHLY SPEND
+        // ========================================================
 
         List<Object[]> monthlyRows =
                 purchaseOrderRepository.getMonthlySpend(
@@ -152,44 +140,46 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         List<MonthlySpendDTO> monthlySpend =
                 new ArrayList<>();
 
-        for (Object[] row : monthlyRows) {
+        if (monthlyRows != null) {
 
-            int year =
-                    row[0] != null
-                            ? ((Number) row[0]).intValue()
-                            : 0;
+            for (Object[] row : monthlyRows) {
 
-            int month =
-                    row[1] != null
-                            ? ((Number) row[1]).intValue()
-                            : 0;
+                int year =
+                        row[0] != null
+                                ? ((Number) row[0]).intValue()
+                                : 0;
 
-            BigDecimal spend =
-                    toBigDecimal(row[2]);
+                int month =
+                        row[1] != null
+                                ? ((Number) row[1]).intValue()
+                                : 0;
 
-            String monthName =
-                    getMonthName(month)
-                            + " "
-                            + year;
+                BigDecimal spend =
+                        toBigDecimal(row[2]);
 
-            monthlySpend.add(
-                    new MonthlySpendDTO(
-                            monthName,
-                            spend
-                    )
-            );
+                String monthName =
+                        getMonthName(month)
+                                + " "
+                                + year;
+
+                monthlySpend.add(
+                        new MonthlySpendDTO(
+                                monthName,
+                                spend
+                        )
+                );
+            }
         }
 
 
-        /*
-         * ========================================================
-         * PROCUREMENT PERFORMANCE
-         * ========================================================
-         */
+        // ========================================================
+        // PROCUREMENT PERFORMANCE
+        // ========================================================
 
         long totalPOs =
                 purchaseOrderRepository
                         .countAllPurchaseOrders();
+
 
         long completedPOs =
                 purchaseOrderRepository
@@ -197,11 +187,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                                 PurchaseOrderStatus.CLOSED
                         );
 
+
         long rejectedPOs =
                 purchaseOrderRepository
                         .countPurchaseOrdersByStatus(
                                 PurchaseOrderStatus.REJECTED
                         );
+
 
         long pendingPOs =
                 purchaseOrderRepository
@@ -210,14 +202,9 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                         );
 
 
-        /*
-         * In-progress Purchase Orders:
-         *
-         * SENT
-         * ACCEPTED
-         * SHIPPED
-         * PARTIALLY_DELIVERED
-         */
+        // ========================================================
+        // IN-PROGRESS PURCHASE ORDERS
+        // ========================================================
 
         long sentPOs =
                 purchaseOrderRepository
@@ -225,11 +212,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                                 PurchaseOrderStatus.SENT
                         );
 
+
         long acceptedPOs =
                 purchaseOrderRepository
                         .countPurchaseOrdersByStatus(
                                 PurchaseOrderStatus.ACCEPTED
                         );
+
 
         long shippedPOs =
                 purchaseOrderRepository
@@ -237,11 +226,13 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                                 PurchaseOrderStatus.SHIPPED
                         );
 
+
         long partiallyDeliveredPOs =
                 purchaseOrderRepository
                         .countPurchaseOrdersByStatus(
                                 PurchaseOrderStatus.PARTIALLY_DELIVERED
                         );
+
 
         long inProgressPOs =
                 sentPOs
@@ -250,11 +241,16 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                         + partiallyDeliveredPOs;
 
 
+        // ========================================================
+        // RATES
+        // ========================================================
+
         double completionRate =
                 calculatePercentage(
                         completedPOs,
                         totalPOs
                 );
+
 
         double rejectionRate =
                 calculatePercentage(
@@ -263,49 +259,58 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 );
 
 
+        // ========================================================
+        // PERFORMANCE DTO
+        // ========================================================
+
         ProcurementPerformanceDTO performance =
                 new ProcurementPerformanceDTO();
+
 
         performance.setTotalPurchaseOrders(
                 totalPOs
         );
 
+
         performance.setCompletedPurchaseOrders(
                 completedPOs
         );
+
 
         performance.setRejectedPurchaseOrders(
                 rejectedPOs
         );
 
+
         performance.setPendingPurchaseOrders(
                 pendingPOs
         );
+
 
         performance.setInProgressPurchaseOrders(
                 inProgressPOs
         );
 
+
         performance.setCompletionRate(
                 completionRate
         );
+
 
         performance.setRejectionRate(
                 rejectionRate
         );
 
 
-        /*
-         * ========================================================
-         * COST OPTIMIZATION INSIGHTS
-         * ========================================================
-         */
+        // ========================================================
+        // COST OPTIMIZATION
+        // ========================================================
 
-        String highestSpendVendor =
-                "N/A";
+        String highestSpendVendor = "N/A";
 
         BigDecimal highestVendorSpend =
                 BigDecimal.ZERO;
+
 
         if (!vendorSpend.isEmpty()) {
 
@@ -320,11 +325,11 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         }
 
 
-        String highestSpendCategory =
-                "N/A";
+        String highestSpendCategory = "N/A";
 
         BigDecimal highestCategorySpend =
                 BigDecimal.ZERO;
+
 
         if (!categorySpend.isEmpty()) {
 
@@ -339,15 +344,17 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         }
 
 
-        String highestSpendMonth =
-                "N/A";
+        String highestSpendMonth = "N/A";
 
         BigDecimal highestMonthlySpend =
                 BigDecimal.ZERO;
 
-        for (MonthlySpendDTO monthly : monthlySpend) {
 
-            if (monthly.getSpend() != null &&
+        for (MonthlySpendDTO monthly :
+                monthlySpend) {
+
+            if (monthly.getSpend() != null
+                    &&
                 monthly.getSpend()
                         .compareTo(
                                 highestMonthlySpend
@@ -365,105 +372,114 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         CostOptimizationDTO costOptimization =
                 new CostOptimizationDTO();
 
+
         costOptimization.setHighestSpendVendor(
                 highestSpendVendor
         );
+
 
         costOptimization.setHighestVendorSpend(
                 highestVendorSpend
         );
 
+
         costOptimization.setHighestSpendCategory(
                 highestSpendCategory
         );
+
 
         costOptimization.setHighestCategorySpend(
                 highestCategorySpend
         );
 
+
         costOptimization.setHighestSpendMonth(
                 highestSpendMonth
         );
+
 
         costOptimization.setHighestMonthlySpend(
                 highestMonthlySpend
         );
 
 
-        /*
-         * ========================================================
-         * DELIVERY PERFORMANCE
-         * ========================================================
-         *
-         * A completed delivery is a Purchase Order that has:
-         *
-         * DELIVERED or CLOSED status
-         *
-         * and delivered quantity equal to the ordered quantity.
-         *
-         * On-time / delayed classification requires both:
-         *
-         * 1. expectedDeliveryDate
-         * 2. deliveryDate
-         *
-         * deliveryDate <= expectedDeliveryDate
-         *       -> ON TIME
-         *
-         * deliveryDate > expectedDeliveryDate
-         *       -> DELAYED
-         *
-         * Existing historical POs may have completed delivery
-         * quantities but no deliveryDate because that field was
-         * not recorded by the earlier workflow. Those orders are
-         * still counted as delivered, but they are not classified
-         * as on-time or delayed until an actual delivery date is
-         * available.
-         */
+        // ========================================================
+        // DELIVERY PERFORMANCE
+        // ========================================================
+        //
+        // IMPORTANT:
+        //
+        // PurchaseOrder is now MULTI ITEM.
+        //
+        // Therefore quantity and deliveredQuantity
+        // must be calculated from PurchaseOrderItem.
+        //
+        // Old code:
+        //
+        // po.getQuantity()
+        // po.getDeliveredQuantity()
+        //
+        // These are NO LONGER USED.
+        //
+
 
         List<PurchaseOrder> allPurchaseOrders =
                 purchaseOrderRepository.findAll();
 
-        long totalDeliveredOrders =
-                0;
 
-        long onTimeDeliveries =
-                0;
+        long totalDeliveredOrders = 0;
 
-        long delayedDeliveries =
-                0;
+        long onTimeDeliveries = 0;
+
+        long delayedDeliveries = 0;
 
 
-        for (PurchaseOrder po : allPurchaseOrders) {
+        for (PurchaseOrder po :
+                allPurchaseOrders) {
 
             PurchaseOrderStatus status =
                     po.getStatus();
+
+
+            // ----------------------------------------------------
+            // Only DELIVERED / CLOSED POs count
+            // ----------------------------------------------------
 
             boolean completedDelivery =
                     status == PurchaseOrderStatus.DELIVERED
                     ||
                     status == PurchaseOrderStatus.CLOSED;
 
+
             if (!completedDelivery) {
                 continue;
             }
 
 
+            // ----------------------------------------------------
+            // Calculate total ordered quantity
+            // from all PO items
+            // ----------------------------------------------------
+
             int orderedQuantity =
-                    po.getQuantity() == null
-                            ? 0
-                            : po.getQuantity();
+                    getTotalOrderedQuantity(po);
+
+
+            // ----------------------------------------------------
+            // Calculate total delivered quantity
+            // from all PO items
+            // ----------------------------------------------------
 
             int deliveredQuantity =
-                    po.getDeliveredQuantity() == null
-                            ? 0
-                            : po.getDeliveredQuantity();
+                    getTotalDeliveredQuantity(po);
 
 
-            /*
-             * A PO is counted as delivered only when the
-             * complete ordered quantity has been received.
-             */
-            if (orderedQuantity <= 0 ||
+            // ----------------------------------------------------
+            // Complete delivery check
+            // ----------------------------------------------------
+
+            if (orderedQuantity <= 0
+                    ||
                 deliveredQuantity < orderedQuantity) {
 
                 continue;
@@ -473,12 +489,12 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             totalDeliveredOrders++;
 
 
-            /*
-             * Historical completed POs can have no actual
-             * delivery date. Do not invent a date and do not
-             * classify such orders as on-time or delayed.
-             */
-            if (po.getExpectedDeliveryDate() == null ||
+            // ----------------------------------------------------
+            // Date based delivery performance
+            // ----------------------------------------------------
+
+            if (po.getExpectedDeliveryDate() == null
+                    ||
                 po.getDeliveryDate() == null) {
 
                 continue;
@@ -499,13 +515,14 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         }
 
 
-        /*
-         * The rate is calculated only from deliveries for which
-         * an actual delivery date is available.
-         */
+        // ========================================================
+        // ON-TIME DELIVERY RATE
+        // ========================================================
+
         long evaluatedDeliveries =
                 onTimeDeliveries
                         + delayedDeliveries;
+
 
         double onTimeDeliveryRate =
                 calculatePercentage(
@@ -514,72 +531,160 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 );
 
 
+        // ========================================================
+        // DELIVERY PERFORMANCE DTO
+        // ========================================================
+
         DeliveryPerformanceDTO deliveryPerformance =
                 new DeliveryPerformanceDTO();
+
 
         deliveryPerformance.setTotalDeliveredOrders(
                 totalDeliveredOrders
         );
 
+
         deliveryPerformance.setOnTimeDeliveries(
                 onTimeDeliveries
         );
 
+
         deliveryPerformance.setDelayedDeliveries(
                 delayedDeliveries
         );
+
 
         deliveryPerformance.setOnTimeDeliveryRate(
                 onTimeDeliveryRate
         );
 
 
-        /*
-         * ========================================================
-         * FINAL RESPONSE
-         * ========================================================
-         */
+        // ========================================================
+        // FINAL RESPONSE
+        // ========================================================
 
         ProcurementAnalyticsResponseDTO response =
                 new ProcurementAnalyticsResponseDTO();
+
 
         response.setTotalProcurementSpend(
                 totalSpend
         );
 
+
         response.setVendorWiseSpend(
                 vendorSpend
         );
+
 
         response.setCategoryWiseSpend(
                 categorySpend
         );
 
+
         response.setMonthlySpend(
                 monthlySpend
         );
+
 
         response.setPerformance(
                 performance
         );
 
+
         response.setCostOptimization(
                 costOptimization
         );
+
 
         response.setDeliveryPerformance(
                 deliveryPerformance
         );
 
+
         return response;
     }
 
 
-    /*
-     * ============================================================
-     * CONVERT QUERY VALUE TO BigDecimal
-     * ============================================================
-     */
+    // ============================================================
+    // TOTAL ORDERED QUANTITY FROM ALL ITEMS
+    // ============================================================
+
+    private int getTotalOrderedQuantity(
+            PurchaseOrder po) {
+
+        if (po.getItems() == null) {
+            return 0;
+        }
+
+
+        int total = 0;
+
+
+        for (PurchaseOrderItem item :
+                po.getItems()) {
+
+            if (item == null) {
+                continue;
+            }
+
+
+            Integer quantity =
+                    item.getQuantity();
+
+
+            if (quantity != null) {
+
+                total += quantity;
+            }
+        }
+
+
+        return total;
+    }
+
+
+    // ============================================================
+    // TOTAL DELIVERED QUANTITY FROM ALL ITEMS
+    // ============================================================
+
+    private int getTotalDeliveredQuantity(
+            PurchaseOrder po) {
+
+        if (po.getItems() == null) {
+            return 0;
+        }
+
+
+        int total = 0;
+
+
+        for (PurchaseOrderItem item :
+                po.getItems()) {
+
+            if (item == null) {
+                continue;
+            }
+
+
+            Integer deliveredQuantity =
+                    item.getDeliveredQuantity();
+
+
+            if (deliveredQuantity != null) {
+
+                total += deliveredQuantity;
+            }
+        }
+
+
+        return total;
+    }
+
+
+    // ============================================================
+    // CONVERT OBJECT -> BIG DECIMAL
+    // ============================================================
 
     private BigDecimal toBigDecimal(
             Object value) {
@@ -588,15 +693,20 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             return BigDecimal.ZERO;
         }
 
+
         if (value instanceof BigDecimal) {
+
             return (BigDecimal) value;
         }
 
+
         if (value instanceof Number) {
+
             return BigDecimal.valueOf(
                     ((Number) value).doubleValue()
             );
         }
+
 
         return new BigDecimal(
                 value.toString()
@@ -604,23 +714,26 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
 
-    /*
-     * ============================================================
-     * MONTH NAME
-     * ============================================================
-     */
+    // ============================================================
+    // MONTH NAME
+    // ============================================================
 
-    private String getMonthName(int month) {
+    private String getMonthName(
+            int month) {
 
         if (month < 1 || month > 12) {
+
             return "Unknown";
         }
+
 
         Month monthValue =
                 Month.of(month);
 
+
         String monthName =
                 monthValue.name();
+
 
         return monthName.substring(0, 1)
                 +
@@ -630,29 +743,33 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
 
-    /*
-     * ============================================================
-     * PERCENTAGE CALCULATION
-     * ============================================================
-     */
+    // ============================================================
+    // PERCENTAGE
+    // ============================================================
 
     private double calculatePercentage(
             long numerator,
             long denominator) {
 
         if (denominator == 0) {
+
             return 0.0;
         }
 
-        return BigDecimal.valueOf(numerator)
+
+        return BigDecimal
+                .valueOf(numerator)
+
                 .multiply(
                         BigDecimal.valueOf(100)
                 )
+
                 .divide(
                         BigDecimal.valueOf(denominator),
                         2,
                         RoundingMode.HALF_UP
                 )
+
                 .doubleValue();
     }
 }

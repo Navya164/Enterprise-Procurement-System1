@@ -2,6 +2,7 @@ package com.assessment.auth.dto;
 
 public class DashboardDTO {
 
+    // Existing Purchase Request summary
     private long totalUsers;
     private long totalRequests;
     private long pendingManager;
@@ -9,6 +10,14 @@ public class DashboardDTO {
     private long procurementInProgress;
     private long completed;
     private long rejected;
+
+    // Purchase Order summary (NEW - Task 1 dashboard cards)
+    private long totalPOs;
+    private long poPending;
+    private long poInProgress;
+    private long poCompleted;
+    private long poRejected;
+    private long totalVendors;
 
     public DashboardDTO() {}
 
@@ -66,5 +75,55 @@ public class DashboardDTO {
 
     public void setRejected(long rejected) {
         this.rejected = rejected;
+    }
+
+    // ================= PO fields =================
+
+    public long getTotalPOs() {
+        return totalPOs;
+    }
+
+    public void setTotalPOs(long totalPOs) {
+        this.totalPOs = totalPOs;
+    }
+
+    public long getPoPending() {
+        return poPending;
+    }
+
+    public void setPoPending(long poPending) {
+        this.poPending = poPending;
+    }
+
+    public long getPoInProgress() {
+        return poInProgress;
+    }
+
+    public void setPoInProgress(long poInProgress) {
+        this.poInProgress = poInProgress;
+    }
+
+    public long getPoCompleted() {
+        return poCompleted;
+    }
+
+    public void setPoCompleted(long poCompleted) {
+        this.poCompleted = poCompleted;
+    }
+
+    public long getPoRejected() {
+        return poRejected;
+    }
+
+    public void setPoRejected(long poRejected) {
+        this.poRejected = poRejected;
+    }
+
+    public long getTotalVendors() {
+        return totalVendors;
+    }
+
+    public void setTotalVendors(long totalVendors) {
+        this.totalVendors = totalVendors;
     }
 }

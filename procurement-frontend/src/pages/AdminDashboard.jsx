@@ -31,18 +31,26 @@ function AdminDashboard() {
 
     const navigate = useNavigate();
 
-    const [stats, setStats] = useState({
-        totalUsers: 0,
-        totalRequests: 0,
-        pendingManager: 0,
-        pendingProcurement: 0,
-        procurementInProgress: 0,
-        completed: 0,
-        rejected: 0
-    });
+   const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalRequests: 0,
+    pendingManager: 0,
+    pendingProcurement: 0,
+    procurementInProgress: 0,
+    completed: 0,
+    rejected: 0,
+    totalPOs: 0,
+    poPending: 0,
+    poInProgress: 0,
+    poCompleted: 0,
+    poRejected: 0,
+    totalVendors: 0
+});
 
     useEffect(() => {
         loadDashboard();
+        const interval = setInterval(loadDashboard, 10000); // live update every 10s
+        return () => clearInterval(interval);
     }, []);
 
     const loadDashboard = async () => {
@@ -298,6 +306,64 @@ function AdminDashboard() {
 
                     </div>
 
+                </div>
+
+            </div>
+
+            {/* PROCUREMENT ORDER SUMMARY - TASK 1 */}
+
+            <h3 className="text-center mb-4">
+                🧾 Procurement Order Tracking
+            </h3>
+
+            <div className="row g-4 mb-5">
+
+                <div className="col-lg-2 col-md-4 col-6">
+                    <div style={{ ...cardStyle, background: "linear-gradient(135deg,#0d6efd,#4dabff)" }}>
+                        <h1>📦</h1>
+                        <h3>{stats.totalPOs}</h3>
+                        <p className="mb-0">Total POs</p>
+                    </div>
+                </div>
+
+                <div className="col-lg-2 col-md-4 col-6">
+                    <div style={{ ...cardStyle, background: "linear-gradient(135deg,#fd7e14,#ffc107)" }}>
+                        <h1>⏳</h1>
+                        <h3>{stats.poPending}</h3>
+                        <p className="mb-0">Pending</p>
+                    </div>
+                </div>
+
+                <div className="col-lg-2 col-md-4 col-6">
+                    <div style={{ ...cardStyle, background: "linear-gradient(135deg,#6610f2,#a370f7)" }}>
+                        <h1>🚚</h1>
+                        <h3>{stats.poInProgress}</h3>
+                        <p className="mb-0">In Progress</p>
+                    </div>
+                </div>
+
+                <div className="col-lg-2 col-md-4 col-6">
+                    <div style={{ ...cardStyle, background: "linear-gradient(135deg,#198754,#51cf66)" }}>
+                        <h1>✅</h1>
+                        <h3>{stats.poCompleted}</h3>
+                        <p className="mb-0">Completed</p>
+                    </div>
+                </div>
+
+                <div className="col-lg-2 col-md-4 col-6">
+                    <div style={{ ...cardStyle, background: "linear-gradient(135deg,#dc3545,#ff6b6b)" }}>
+                        <h1>❌</h1>
+                        <h3>{stats.poRejected}</h3>
+                        <p className="mb-0">Rejected</p>
+                    </div>
+                </div>
+
+                <div className="col-lg-2 col-md-4 col-6">
+                    <div style={{ ...cardStyle, background: "linear-gradient(135deg,#0891b2,#22d3ee)" }}>
+                        <h1>🏭</h1>
+                        <h3>{stats.totalVendors}</h3>
+                        <p className="mb-0">Total Vendors</p>
+                    </div>
                 </div>
 
             </div>

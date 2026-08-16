@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,12 +28,6 @@ public interface PurchaseOrderRepository
      * ============================================================
      */
 
-
-    /*
-     * Total procurement spend from completed Purchase Orders only.
-     *
-     * CLOSED is the completed state in the existing PO lifecycle.
-     */
     @Query("""
             SELECT COALESCE(SUM(po.totalAmount), 0)
             FROM PurchaseOrder po
@@ -44,10 +37,6 @@ public interface PurchaseOrderRepository
             @Param("status") PurchaseOrderStatus status
     );
 
-
-    /*
-     * Vendor-wise procurement spend.
-     */
     @Query("""
             SELECT po.vendorName, COALESCE(SUM(po.totalAmount), 0)
             FROM PurchaseOrder po
@@ -59,13 +48,6 @@ public interface PurchaseOrderRepository
             @Param("status") PurchaseOrderStatus status
     );
 
-
-    /*
-     * Category-wise procurement spend.
-     *
-     * Category belongs to PurchaseRequest, which is related
-     * to PurchaseOrder through po.purchaseRequest.
-     */
     @Query("""
             SELECT po.purchaseRequest.category,
                    COALESCE(SUM(po.totalAmount), 0)
@@ -78,13 +60,6 @@ public interface PurchaseOrderRepository
             @Param("status") PurchaseOrderStatus status
     );
 
-
-    /*
-     * Monthly procurement spend from completed Purchase Orders.
-     *
-     * YEAR and MONTH are used so that data from different years
-     * does not get mixed together.
-     */
     @Query("""
             SELECT YEAR(po.createdAt),
                    MONTH(po.createdAt),
@@ -98,20 +73,12 @@ public interface PurchaseOrderRepository
             @Param("status") PurchaseOrderStatus status
     );
 
-
-    /*
-     * Total number of Purchase Orders.
-     */
     @Query("""
             SELECT COUNT(po)
             FROM PurchaseOrder po
             """)
     long countAllPurchaseOrders();
 
-
-    /*
-     * Count Purchase Orders by status.
-     */
     @Query("""
             SELECT COUNT(po)
             FROM PurchaseOrder po
@@ -120,4 +87,33 @@ public interface PurchaseOrderRepository
     long countPurchaseOrdersByStatus(
             @Param("status") PurchaseOrderStatus status
     );
+
+
+    /*
+     * ============================================================
+     * DASHBOARD QUERIES (NEW)
+     * ============================================================
+     */
+
+    /*
+     * Counts POs whose status falls in a given group
+     * (e.g. IN_PROGRESS = SENT + ACCEPTED + SHIPPED + PARTIALLY_DELIVERED)
+     */
+    @Query("""
+            SELECT COUNT(po)
+            FROM PurchaseOrder po
+            WHERE po.status IN :statuses
+            """)
+    long countByStatusIn(
+            @Param("statuses") List<PurchaseOrderStatus> statuses
+    );
+
+    /*
+     * Distinct vendor count across all Purchase Orders.
+     */
+    @Query("""
+            SELECT COUNT(DISTINCT po.vendorName)
+            FROM PurchaseOrder po
+            """)
+    long countDistinctVendors();
 }

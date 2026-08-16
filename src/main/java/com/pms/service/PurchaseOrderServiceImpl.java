@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.assessment.auth.dto.PurchaseOrderItemResponseDTO;
 import com.assessment.auth.dto.PurchaseOrderRequestDTO;
 import com.assessment.auth.dto.PurchaseOrderResponseDTO;
 import com.assessment.auth.dto.PurchaseOrderStatusUpdateDTO;
@@ -21,6 +22,7 @@ import com.assessment.auth.entity.Status;
 import com.assessment.auth.repository.PurchaseRequestRepository;
 
 import com.pms.entity.PurchaseOrder;
+import com.pms.entity.PurchaseOrderItem;
 import com.pms.entity.PurchaseOrderStatus;
 import com.pms.exception.InvalidPurchaseOrderStateException;
 import com.pms.exception.PurchaseRequestNotApprovedException;
@@ -42,82 +44,59 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         this.purchaseRequestRepository = purchaseRequestRepository;
     }
 
-    /*
-     * ============================================================
-     * PURCHASE ORDER STATUS WORKFLOW
-     * ============================================================
-     *
-     * CREATED
-     *    â†“
-     * SENT
-     *    â†“
-     * ACCEPTED
-     *    â†“
-     * SHIPPED
-     *    â†“
-     * PARTIALLY_DELIVERED
-     *    â†“
-     * DELIVERED
-     *    â†“
-     * CLOSED
-     *
-     * Other possible endings:
-     *
-     * SENT â†’ REJECTED
-     * CREATED â†’ CANCELLED
-     * SENT â†’ CANCELLED
-     * ACCEPTED â†’ CANCELLED
-     *
-     */
 
-    private static final Map<PurchaseOrderStatus, Set<PurchaseOrderStatus>> ALLOWED_TRANSITIONS =
-            Map.of(
+    // ============================================================
+    // ALLOWED STATUS TRANSITIONS
+    // ============================================================
 
-                PurchaseOrderStatus.CREATED,
-                Set.of(
-                    PurchaseOrderStatus.SENT,
-                    PurchaseOrderStatus.CANCELLED
-                ),
+    private static final Map<PurchaseOrderStatus, Set<PurchaseOrderStatus>>
+            ALLOWED_TRANSITIONS = Map.of(
 
-                PurchaseOrderStatus.SENT,
-                Set.of(
-                    PurchaseOrderStatus.ACCEPTED,
-                    PurchaseOrderStatus.REJECTED,
-                    PurchaseOrderStatus.CANCELLED
-                ),
+        PurchaseOrderStatus.CREATED,
+        Set.of(
+            PurchaseOrderStatus.SENT,
+            PurchaseOrderStatus.CANCELLED
+        ),
 
-                PurchaseOrderStatus.ACCEPTED,
-                Set.of(
-                    PurchaseOrderStatus.SHIPPED,
-                    PurchaseOrderStatus.CANCELLED
-                ),
+        PurchaseOrderStatus.SENT,
+        Set.of(
+            PurchaseOrderStatus.ACCEPTED,
+            PurchaseOrderStatus.REJECTED,
+            PurchaseOrderStatus.CANCELLED
+        ),
 
-                PurchaseOrderStatus.SHIPPED,
-                Set.of(
-                    PurchaseOrderStatus.PARTIALLY_DELIVERED,
-                    PurchaseOrderStatus.DELIVERED
-                ),
+        PurchaseOrderStatus.ACCEPTED,
+        Set.of(
+            PurchaseOrderStatus.SHIPPED,
+            PurchaseOrderStatus.CANCELLED
+        ),
 
-                PurchaseOrderStatus.PARTIALLY_DELIVERED,
-                Set.of(
-                    PurchaseOrderStatus.PARTIALLY_DELIVERED,
-                    PurchaseOrderStatus.DELIVERED
-                ),
+        PurchaseOrderStatus.SHIPPED,
+        Set.of(
+            PurchaseOrderStatus.PARTIALLY_DELIVERED,
+            PurchaseOrderStatus.DELIVERED
+        ),
 
-                PurchaseOrderStatus.DELIVERED,
-                Set.of(
-                    PurchaseOrderStatus.CLOSED
-                ),
+        PurchaseOrderStatus.PARTIALLY_DELIVERED,
+        Set.of(
+            PurchaseOrderStatus.PARTIALLY_DELIVERED,
+            PurchaseOrderStatus.DELIVERED
+        ),
 
-                PurchaseOrderStatus.CLOSED,
-                Set.of(),
+        PurchaseOrderStatus.DELIVERED,
+        Set.of(
+            PurchaseOrderStatus.CLOSED
+        ),
 
-                PurchaseOrderStatus.REJECTED,
-                Set.of(),
+        PurchaseOrderStatus.CLOSED,
+        Set.of(),
 
-                PurchaseOrderStatus.CANCELLED,
-                Set.of()
-            );
+        PurchaseOrderStatus.REJECTED,
+        Set.of(),
+
+        PurchaseOrderStatus.CANCELLED,
+        Set.of()
+    );
 
 
     // ============================================================
@@ -139,9 +118,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                         )
                 );
 
-        /*
-         * Prevent duplicate PO for the same Purchase Request.
-         */
+
+        // Prevent duplicate PO
         boolean exists =
                 purchaseOrderRepository
                         .existsByPurchaseRequest_RequestId(
@@ -156,10 +134,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
 
 
-        /*
-         * Purchase Request must be in procurement progress
-         * before Procurement can create a PO.
-         */
+        // Purchase Request must be ready
         if (request.getStatus() != Status.PROCUREMENT_IN_PROGRESS) {
 
             throw new PurchaseRequestNotApprovedException(
@@ -167,6 +142,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             );
         }
 
+
+        // ========================================================
+        // CREATE PO
+        // ========================================================
 
         PurchaseOrder po = new PurchaseOrder();
 
@@ -182,48 +161,73 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 requestDTO.getVendorEmail()
         );
 
-        po.setItemName(
-                requestDTO.getItemName()
-        );
 
-        po.setQuantity(
-                requestDTO.getQuantity()
-        );
+        // ========================================================
+        // MULTI ITEM CREATION
+        // ========================================================
 
-        /*
-         * No delivery has happened when PO is created.
-         */
-        po.setDeliveredQuantity(0);
+        if (requestDTO.getItems() == null ||
+                requestDTO.getItems().isEmpty()) {
 
-        po.setUnitPrice(
-                requestDTO.getUnitPrice()
-        );
-
-        po.setTotalAmount(
-                requestDTO.getUnitPrice()
-                        .multiply(
-                                BigDecimal.valueOf(
-                                        requestDTO.getQuantity()
-                                )
-                        )
-        );
-
-        po.setExpectedDeliveryDate(
-                requestDTO.getExpectedDeliveryDate()
-        );
+            throw new InvalidPurchaseOrderStateException(
+                    "At least one purchase order item is required"
+            );
+        }
 
 
-        /*
-         * IMPORTANT
-         *
-         * The PO is immediately sent to the vendor after
-         * Procurement creates it.
-         *
-         * Therefore the initial status is SENT, not CREATED.
-         *
-         * This allows VendorController to return the PO
-         * to the Vendor Dashboard.
-         */
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+
+        for (var itemDTO : requestDTO.getItems()) {
+
+            PurchaseOrderItem item =
+                    new PurchaseOrderItem();
+
+
+            item.setItemName(
+                    itemDTO.getItemName()
+            );
+
+
+            item.setQuantity(
+                    itemDTO.getQuantity()
+            );
+
+
+            // No delivery at creation
+            item.setDeliveredQuantity(0);
+
+
+            item.setUnitPrice(
+                    itemDTO.getUnitPrice()
+            );
+
+
+            BigDecimal amount =
+                    itemDTO.getUnitPrice()
+                            .multiply(
+                                    BigDecimal.valueOf(
+                                            itemDTO.getQuantity()
+                                    )
+                            );
+
+
+            item.setAmount(amount);
+
+
+            // Connect item -> PO
+            po.addItem(item);
+
+
+            totalAmount =
+                    totalAmount.add(amount);
+        }
+
+
+        po.setTotalAmount(totalAmount);
+
+
+        // PO goes directly to vendor
         po.setStatus(
                 PurchaseOrderStatus.SENT
         );
@@ -242,6 +246,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     // ============================================================
 
     @Override
+    @Transactional(readOnly = true)
     public List<PurchaseOrderResponseDTO> getAllPurchaseOrders() {
 
         return purchaseOrderRepository.findAll()
@@ -256,6 +261,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     // ============================================================
 
     @Override
+    @Transactional(readOnly = true)
     public PurchaseOrderResponseDTO getPurchaseOrderById(Long id) {
 
         PurchaseOrder po =
@@ -289,9 +295,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                         );
 
 
-        /*
-         * Update vendor details.
-         */
+        // ========================================================
+        // UPDATE VENDOR
+        // ========================================================
+
         po.setVendorName(
                 dto.getVendorName()
         );
@@ -301,51 +308,92 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         );
 
 
-        /*
-         * Update item details.
-         */
-        po.setItemName(
-                dto.getItemName()
-        );
+        // ========================================================
+        // UPDATE ITEMS
+        // ========================================================
 
-        po.setQuantity(
-                dto.getQuantity()
-        );
+        if (dto.getItems() == null ||
+                dto.getItems().isEmpty()) {
 
-        po.setUnitPrice(
-                dto.getUnitPrice()
-        );
+            throw new InvalidPurchaseOrderStateException(
+                    "At least one purchase order item is required"
+            );
+        }
 
 
-        /*
-         * Recalculate total amount.
-         */
-        po.setTotalAmount(
-                dto.getUnitPrice()
-                        .multiply(
-                                BigDecimal.valueOf(
-                                        dto.getQuantity()
-                                )
-                        )
-        );
+        po.getItems().clear();
 
 
-        /*
-         * Update expected delivery date.
-         */
+        BigDecimal totalAmount =
+                BigDecimal.ZERO;
+
+
+        for (var itemDTO : dto.getItems()) {
+
+            PurchaseOrderItem item =
+                    new PurchaseOrderItem();
+
+
+            item.setItemName(
+                    itemDTO.getItemName()
+            );
+
+
+            item.setQuantity(
+                    itemDTO.getQuantity()
+            );
+
+
+            item.setDeliveredQuantity(0);
+
+
+            item.setUnitPrice(
+                    itemDTO.getUnitPrice()
+            );
+
+
+            BigDecimal amount =
+                    itemDTO.getUnitPrice()
+                            .multiply(
+                                    BigDecimal.valueOf(
+                                            itemDTO.getQuantity()
+                                    )
+                            );
+
+
+            item.setAmount(amount);
+
+
+            po.addItem(item);
+
+
+            totalAmount =
+                    totalAmount.add(amount);
+        }
+
+
+        po.setTotalAmount(totalAmount);
+
+
+        // ========================================================
+        // EXPECTED DELIVERY DATE
+        // ========================================================
+
         po.setExpectedDeliveryDate(
                 dto.getExpectedDeliveryDate()
         );
 
 
-        return toResponseDTO(
-                purchaseOrderRepository.save(po)
-        );
+        PurchaseOrder saved =
+                purchaseOrderRepository.save(po);
+
+
+        return toResponseDTO(saved);
     }
 
 
     // ============================================================
-    // UPDATE PURCHASE ORDER STATUS
+    // UPDATE STATUS + ITEM-WISE PARTIAL DELIVERY
     // ============================================================
 
     @Override
@@ -370,9 +418,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 dto.getStatus();
 
 
-        /*
-         * Make sure target status is not null.
-         */
         if (targetStatus == null) {
 
             throw new InvalidPurchaseOrderStateException(
@@ -381,10 +426,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         }
 
 
-        /*
-         * Check whether the requested status change
-         * is allowed.
-         */
+        // ========================================================
+        // CHECK STATUS TRANSITION
+        // ========================================================
+
         Set<PurchaseOrderStatus> allowedStatuses =
                 ALLOWED_TRANSITIONS
                         .getOrDefault(
@@ -412,91 +457,129 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 PurchaseOrderStatus.PARTIALLY_DELIVERED) {
 
 
-            /*
-             * Procurement must provide the quantity
-             * delivered in this shipment.
-             */
-            if (dto.getDeliveredQuantity() == null) {
+            Map<Long, Integer> deliveredQuantities =
+                    dto.getDeliveredQuantities();
+
+
+            if (deliveredQuantities == null ||
+                    deliveredQuantities.isEmpty()) {
 
                 throw new InvalidPurchaseOrderStateException(
-                        "Delivered quantity required"
-                );
-            }
-
-
-            if (dto.getDeliveredQuantity() <= 0) {
-
-                throw new InvalidPurchaseOrderStateException(
-                        "Delivered quantity must be greater than zero"
-                );
-            }
-
-
-            int currentDelivered =
-                    po.getDeliveredQuantity() == null
-                            ? 0
-                            : po.getDeliveredQuantity();
-
-
-            int newDeliveredQuantity =
-                    currentDelivered
-                            + dto.getDeliveredQuantity();
-
-
-            /*
-             * Delivered quantity cannot exceed
-             * ordered quantity.
-             */
-            if (newDeliveredQuantity > po.getQuantity()) {
-
-                throw new InvalidPurchaseOrderStateException(
-                        "Delivered quantity exceeds order quantity"
+                        "Item-wise delivered quantities are required"
                 );
             }
 
 
             /*
-             * If the delivered quantity is exactly the
-             * order quantity, it should be DELIVERED,
-             * not PARTIALLY_DELIVERED.
+             * Update each item separately.
+             *
+             * Example:
+             *
+             * Item 101 -> deliver 5
+             * Item 102 -> deliver 10
              */
-            if (newDeliveredQuantity == po.getQuantity()) {
 
-                po.setDeliveredQuantity(
-                        po.getQuantity()
-                );
+            for (Map.Entry<Long, Integer> entry :
+                    deliveredQuantities.entrySet()) {
 
-                /*
-                 * Record the actual date on which the complete
-                 * quantity was delivered.
-                 */
-                po.setDeliveryDate(
-                        LocalDate.now()
+
+                Long itemId =
+                        entry.getKey();
+
+                Integer deliveredInThisUpdate =
+                        entry.getValue();
+
+
+                if (deliveredInThisUpdate == null ||
+                        deliveredInThisUpdate <= 0) {
+
+                    throw new InvalidPurchaseOrderStateException(
+                            "Delivered quantity must be greater than zero for item "
+                                    + itemId
+                    );
+                }
+
+
+                PurchaseOrderItem item =
+                        po.getItems()
+                                .stream()
+                                .filter(i ->
+                                        i.getId()
+                                                .equals(itemId)
+                                )
+                                .findFirst()
+                                .orElseThrow(() ->
+                                        new InvalidPurchaseOrderStateException(
+                                                "Item "
+                                                        + itemId
+                                                        + " does not belong to this Purchase Order"
+                                        )
+                                );
+
+
+                int currentDelivered =
+                        item.getDeliveredQuantity() == null
+                                ? 0
+                                : item.getDeliveredQuantity();
+
+
+                int newDelivered =
+                        currentDelivered
+                                + deliveredInThisUpdate;
+
+
+                // Cannot exceed ordered quantity
+                if (newDelivered >
+                        item.getQuantity()) {
+
+                    throw new InvalidPurchaseOrderStateException(
+                            "Delivered quantity exceeds ordered quantity for item "
+                                    + item.getItemName()
+                    );
+                }
+
+
+                item.setDeliveredQuantity(
+                        newDelivered
                 );
+            }
+
+
+            // ====================================================
+            // CHECK WHETHER ALL ITEMS ARE COMPLETELY DELIVERED
+            // ====================================================
+
+            boolean allDelivered =
+                    po.getItems()
+                            .stream()
+                            .allMatch(item -> {
+
+                                int delivered =
+                                        item.getDeliveredQuantity() == null
+                                                ? 0
+                                                : item.getDeliveredQuantity();
+
+                                return delivered >=
+                                        item.getQuantity();
+                            });
+
+
+            if (allDelivered) {
 
                 po.setStatus(
                         PurchaseOrderStatus.DELIVERED
                 );
 
+                po.setDeliveryDate(
+                        LocalDate.now()
+                );
 
-                PurchaseOrder saved =
-                        purchaseOrderRepository.save(po);
+            } else {
 
-
-                return toResponseDTO(saved);
+                po.setStatus(
+                        PurchaseOrderStatus.PARTIALLY_DELIVERED
+                );
             }
-
-
-            /*
-             * Otherwise keep it partially delivered.
-             */
-            po.setDeliveredQuantity(
-                    newDeliveredQuantity
-            );
-
-            po.setStatus(
-                    PurchaseOrderStatus.PARTIALLY_DELIVERED
-            );
         }
 
 
@@ -507,31 +590,87 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         else if (targetStatus ==
                 PurchaseOrderStatus.DELIVERED) {
 
-            /*
-             * Mark the complete quantity as delivered.
-             */
-            po.setDeliveredQuantity(
-                    po.getQuantity()
-            );
 
             /*
-             * Record the actual delivery date.
-             * Analytics compares this with the expected
-             * delivery date to determine on-time or delayed
-             * delivery performance.
+             * Mark every item as completely delivered.
              */
-            po.setDeliveryDate(
-                    LocalDate.now()
-            );
+
+            for (PurchaseOrderItem item :
+                    po.getItems()) {
+
+                item.setDeliveredQuantity(
+                        item.getQuantity()
+                );
+            }
+
 
             po.setStatus(
                     PurchaseOrderStatus.DELIVERED
+            );
+
+
+            po.setDeliveryDate(
+                    LocalDate.now()
             );
         }
 
 
         // ========================================================
-        // ALL OTHER STATUS CHANGES
+        // REJECTED
+        // ========================================================
+
+        else if (targetStatus ==
+                PurchaseOrderStatus.REJECTED) {
+
+            po.setStatus(
+                    PurchaseOrderStatus.REJECTED
+            );
+
+
+            PurchaseRequest request =
+                    po.getPurchaseRequest();
+
+
+            request.setStatus(
+                    Status.PENDING_PROCUREMENT
+            );
+
+
+            purchaseRequestRepository.save(
+                    request
+            );
+        }
+
+
+        // ========================================================
+        // CLOSED
+        // ========================================================
+
+        else if (targetStatus ==
+                PurchaseOrderStatus.CLOSED) {
+
+            po.setStatus(
+                    PurchaseOrderStatus.CLOSED
+            );
+
+
+            PurchaseRequest request =
+                    po.getPurchaseRequest();
+
+
+            request.setStatus(
+                    Status.COMPLETED
+            );
+
+
+            purchaseRequestRepository.save(
+                    request
+            );
+        }
+
+
+        // ========================================================
+        // OTHER STATUS
         // ========================================================
 
         else {
@@ -539,50 +678,6 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             po.setStatus(
                     targetStatus
             );
-        }
-
-
-        // ========================================================
-        // VENDOR REJECTS PO
-        // ========================================================
-
-        if (targetStatus ==
-                PurchaseOrderStatus.REJECTED) {
-
-            PurchaseRequest request =
-                    po.getPurchaseRequest();
-
-            /*
-             * Send the Purchase Request back to
-             * Procurement so it can be handled again.
-             */
-            request.setStatus(
-                    Status.PENDING_PROCUREMENT
-            );
-
-            purchaseRequestRepository.save(request);
-        }
-
-
-        // ========================================================
-        // PO CLOSED
-        // ========================================================
-
-        if (targetStatus ==
-                PurchaseOrderStatus.CLOSED) {
-
-            /*
-             * Once Procurement closes the PO,
-             * the original Purchase Request is completed.
-             */
-            PurchaseRequest request =
-                    po.getPurchaseRequest();
-
-            request.setStatus(
-                    Status.COMPLETED
-            );
-
-            purchaseRequestRepository.save(request);
         }
 
 
@@ -632,7 +727,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
 
     // ============================================================
-    // CONVERT ENTITY -> RESPONSE DTO
+    // ENTITY -> RESPONSE DTO
     // ============================================================
 
     private PurchaseOrderResponseDTO toResponseDTO(
@@ -646,42 +741,86 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 po.getId()
         );
 
+
         dto.setPoNumber(
                 po.getPoNumber()
         );
 
-        dto.setPurchaseRequestId(
-                po.getPurchaseRequest()
-                        .getRequestId()
-        );
+
+        if (po.getPurchaseRequest() != null) {
+
+            dto.setPurchaseRequestId(
+                    po.getPurchaseRequest()
+                            .getRequestId()
+            );
+        }
 
 
         dto.setVendorName(
                 po.getVendorName()
         );
 
+
         dto.setVendorEmail(
                 po.getVendorEmail()
         );
 
 
-        dto.setItemName(
-                po.getItemName()
+        // ========================================================
+        // MULTI ITEM RESPONSE
+        // ========================================================
+
+        List<PurchaseOrderItemResponseDTO> itemResponses =
+                po.getItems()
+                        .stream()
+                        .map(item -> {
+
+                            PurchaseOrderItemResponseDTO itemDTO =
+                                    new PurchaseOrderItemResponseDTO();
+
+
+                            itemDTO.setId(
+                                    item.getId()
+                            );
+
+
+                            itemDTO.setItemName(
+                                    item.getItemName()
+                            );
+
+
+                            itemDTO.setQuantity(
+                                    item.getQuantity()
+                            );
+
+
+                            itemDTO.setDeliveredQuantity(
+                                    item.getDeliveredQuantity()
+                            );
+
+
+                            itemDTO.setUnitPrice(
+                                    item.getUnitPrice()
+                            );
+
+
+                            itemDTO.setAmount(
+                                    item.getAmount()
+                            );
+
+
+                            return itemDTO;
+
+                        })
+                        .collect(
+                                Collectors.toList()
+                        );
+
+
+        dto.setItems(
+                itemResponses
         );
 
-        dto.setQuantity(
-                po.getQuantity()
-        );
-
-
-        dto.setDeliveredQuantity(
-                po.getDeliveredQuantity()
-        );
-
-
-        dto.setUnitPrice(
-                po.getUnitPrice()
-        );
 
         dto.setTotalAmount(
                 po.getTotalAmount()
@@ -697,6 +836,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                 po.getExpectedDeliveryDate()
         );
 
+
         dto.setDeliveryDate(
                 po.getDeliveryDate()
         );
@@ -705,6 +845,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         dto.setCreatedAt(
                 po.getCreatedAt()
         );
+
 
         dto.setUpdatedAt(
                 po.getUpdatedAt()
