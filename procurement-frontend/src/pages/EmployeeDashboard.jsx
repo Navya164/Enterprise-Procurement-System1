@@ -8,7 +8,9 @@ function EmployeeDashboard() {
 
     const navigate = useNavigate();
 
-    const employeeId = 1;
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    const employeeId = user?.id;
 
     const emptyRequest = {
         title: "",

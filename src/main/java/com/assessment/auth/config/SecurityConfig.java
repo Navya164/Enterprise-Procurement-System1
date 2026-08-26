@@ -38,20 +38,21 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
 
             .authorizeHttpRequests(auth -> auth
-            		.requestMatchers(
-            		        "/",
-            		        "/login",
-            		        "/register",
-            		        "/test",
-            		        "/success",
-            		        "/error",
-            		        "/api/**",         
-            		        "/css/**",
-            		        "/js/**",
-            		        "/images/**"
-            		).permitAll()
+                    .requestMatchers(
+                            "/",
+                            "/login",
+                            "/register",
+                            "/test",
+                            "/success",
+                            "/error",
+                            "/api/**",
+                            "/suppliers/**",
+                            "/css/**",
+                            "/js/**",
+                            "/images/**"
+                    ).permitAll()
 
-                .anyRequest().authenticated()
+                    .anyRequest().authenticated()
             )
 
             .formLogin(form -> form

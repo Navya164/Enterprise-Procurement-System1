@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import VendorDashboard from "./pages/VendorDashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
@@ -12,7 +13,8 @@ import ApprovalHistory from "./pages/ApprovalHistory";
 import ProcurementCategoryManagement from "./pages/ProcurementCategoryManagement";
 import DepartmentManagement from "./pages/DepartmentManagement";
 import ApprovalHierarchyManagement from "./pages/ApprovalHierarchyManagement";
-
+import VendorManagement from "./pages/VendorManagement";
+import ActivityMonitoring from "./pages/ActivityMonitoring";
 
 
 function App() {
@@ -30,7 +32,14 @@ function App() {
 
         <Route path="/procurement" element={<ProcurementDashboard />} />
 
+        <Route path="/vendor" element={<VendorDashboard />} 
+/>
+
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route
+    path="/admin/vendors"
+    element={<VendorManagement />}
+/>
 
         <Route 
     path="/admin/categories" 
@@ -52,6 +61,10 @@ function App() {
         <Route path="/workflow" element={<WorkflowTracker />} />
 
         <Route path="/history" element={<ApprovalHistory />} />
+        <Route
+    path="/activity-monitoring"
+    element={<ActivityMonitoring />}
+/>
         
 
       </Routes>

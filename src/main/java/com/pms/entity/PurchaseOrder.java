@@ -33,6 +33,9 @@ public class PurchaseOrder {
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
+    
+    @Column(name = "delivered_quantity")
+    private Integer deliveredQuantity = 0;
 
     @Column(name = "unit_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal unitPrice;
@@ -46,6 +49,9 @@ public class PurchaseOrder {
 
     @Column(name = "expected_delivery_date")
     private LocalDate expectedDeliveryDate;
+    
+    @Column(name = "delivery_date")
+    private LocalDate deliveryDate;
 
     // Many Purchase Orders can reference the same Purchase Request
     @ManyToOne(fetch = FetchType.LAZY)
@@ -64,6 +70,10 @@ public class PurchaseOrder {
         this.updatedAt = LocalDateTime.now();
         if (this.status == null) {
             this.status = PurchaseOrderStatus.CREATED;
+        }
+        
+        if(this.deliveredQuantity == null){
+            this.deliveredQuantity = 0;
         }
     }
 
@@ -118,6 +128,14 @@ public class PurchaseOrder {
     public Integer getQuantity() {
         return quantity;
     }
+    
+    public Integer getDeliveredQuantity() {
+        return deliveredQuantity;
+    }
+
+    public void setDeliveredQuantity(Integer deliveredQuantity) {
+        this.deliveredQuantity = deliveredQuantity;
+    }
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
@@ -150,6 +168,13 @@ public class PurchaseOrder {
     public LocalDate getExpectedDeliveryDate() {
         return expectedDeliveryDate;
     }
+    public LocalDate getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(LocalDate deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
 
     public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
         this.expectedDeliveryDate = expectedDeliveryDate;
@@ -170,4 +195,6 @@ public class PurchaseOrder {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+    
+    
 }

@@ -22,8 +22,10 @@ public class PurchaseOrderResponseDTO {
     private BigDecimal totalAmount;
     private PurchaseOrderStatus status;
     private LocalDate expectedDeliveryDate;
+    private LocalDate deliveryDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Integer deliveredQuantity;
 
     public Long getId() {
         return id;
@@ -113,6 +115,14 @@ public class PurchaseOrderResponseDTO {
         this.expectedDeliveryDate = expectedDeliveryDate;
     }
 
+    public LocalDate getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(LocalDate deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -127,5 +137,13 @@ public class PurchaseOrderResponseDTO {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getDeliveredQuantity() {
+        return deliveredQuantity;
+    }
+
+    public void setDeliveredQuantity(Integer deliveredQuantity) {
+        this.deliveredQuantity = deliveredQuantity;
     }
 }

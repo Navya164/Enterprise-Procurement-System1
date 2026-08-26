@@ -10,7 +10,9 @@ public enum PurchaseOrderStatus {
     SENT,
     ACCEPTED,
     SHIPPED,
+    PARTIALLY_DELIVERED,
     DELIVERED,
     CLOSED,
-    CANCELLED
+    CANCELLED,
+    REJECTED
 }

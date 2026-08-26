@@ -4,7 +4,9 @@ public enum Role {
 
     ADMIN,
     MANAGER,
+    SENIOR_MANAGER,
     EMPLOYEE,
-    PROCUREMENT_OFFICER
+    PROCUREMENT_OFFICER,
+    VENDOR
 
 }
