@@ -1,66 +1,176 @@
 package com.assessment.auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "purchase_requests")
 public class PurchaseRequest {
 
+    // =========================================================
+    // PRIMARY KEY
+    // =========================================================
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "request_id")
     private Long requestId;
 
-    @ManyToOne
+
+    // =========================================================
+    // EMPLOYEE
+    // =========================================================
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
+    @JsonIgnore
     private User employee;
 
-    @ManyToOne
+
+    // =========================================================
+    // ASSIGNED MANAGER
+    // =========================================================
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_manager_id")
+    @JsonIgnore
     private User assignedManager;
 
+
+    // =========================================================
+    // REQUIRED DATABASE FIELDS
+    // =========================================================
+
+    @Column(name = "requested_by", nullable = false)
+    private String requestedBy;
+
+    @Column(name = "requested_item", nullable = false)
+    private String requestedItem;
+
+
+    // =========================================================
+    // PURCHASE REQUEST DETAILS
+    // =========================================================
+
+    @Column(name = "title")
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "quantity")
     private Integer quantity;
 
+    @Column(name = "amount")
     private Double amount;
 
+    @Column(name = "category")
     private String category;
 
+
+    // =========================================================
+    // PRIORITY
+    // =========================================================
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "priority")
     private Priority priority;
 
+
+    // =========================================================
+    // STATUS
+    // =========================================================
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private Status status;
 
+
+    // =========================================================
+    // WORKFLOW FIELDS
+    // =========================================================
+
+    @Column(name = "current_level")
     private String currentLevel;
 
+    @Column(name = "approval_date")
     private LocalDateTime approvalDate;
 
+    @Column(name = "previous_status")
     private String previousStatus;
 
+    @Column(name = "decision_time")
     private LocalDateTime decisionTime;
 
+    @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
 
-    private LocalDateTime createdDate;
-
+    @Column(name = "manager_unavailable_since")
     private LocalDateTime managerUnavailableSince;
 
-    @Column(columnDefinition = "TEXT")
+
+    // =========================================================
+    // CREATED DATE
+    // =========================================================
+
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
+
+
+    // =========================================================
+    // REMARKS
+    // =========================================================
+
+    @Column(name = "remarks", columnDefinition = "TEXT")
     private String remarks;
 
+
+    // =========================================================
+    // EMERGENCY FLAG
+    // =========================================================
+
+    @Column(name = "emergency_flag")
+    private Boolean emergencyFlag;
+
+
+    // =========================================================
+    // CONSTRUCTOR
+    // =========================================================
 
     public PurchaseRequest() {
     }
 
+
+    // =========================================================
+    // PRE-PERSIST
+    // =========================================================
+
     @PrePersist
     public void prePersist() {
-        createdDate = LocalDateTime.now();
+
+        if (createdDate == null) {
+            createdDate = LocalDateTime.now();
+        }
+
+        if (status == null) {
+            status = Status.PENDING_MANAGER;
+        }
+
+        if (emergencyFlag == null) {
+            emergencyFlag = false;
+        }
+
+        if (currentLevel == null) {
+            currentLevel = "MANAGER";
+        }
     }
+
+
+    // =========================================================
+    // REQUEST ID
+    // =========================================================
 
     public Long getRequestId() {
         return requestId;
@@ -70,6 +180,12 @@ public class PurchaseRequest {
         this.requestId = requestId;
     }
 
+
+    // =========================================================
+    // EMPLOYEE
+    // =========================================================
+
+    @JsonIgnore
     public User getEmployee() {
         return employee;
     }
@@ -77,6 +193,51 @@ public class PurchaseRequest {
     public void setEmployee(User employee) {
         this.employee = employee;
     }
+
+
+    // =========================================================
+    // ASSIGNED MANAGER
+    // =========================================================
+
+    @JsonIgnore
+    public User getAssignedManager() {
+        return assignedManager;
+    }
+
+    public void setAssignedManager(User assignedManager) {
+        this.assignedManager = assignedManager;
+    }
+
+
+    // =========================================================
+    // REQUESTED BY
+    // =========================================================
+
+    public String getRequestedBy() {
+        return requestedBy;
+    }
+
+    public void setRequestedBy(String requestedBy) {
+        this.requestedBy = requestedBy;
+    }
+
+
+    // =========================================================
+    // REQUESTED ITEM
+    // =========================================================
+
+    public String getRequestedItem() {
+        return requestedItem;
+    }
+
+    public void setRequestedItem(String requestedItem) {
+        this.requestedItem = requestedItem;
+    }
+
+
+    // =========================================================
+    // TITLE
+    // =========================================================
 
     public String getTitle() {
         return title;
@@ -86,6 +247,11 @@ public class PurchaseRequest {
         this.title = title;
     }
 
+
+    // =========================================================
+    // DESCRIPTION
+    // =========================================================
+
     public String getDescription() {
         return description;
     }
@@ -93,6 +259,11 @@ public class PurchaseRequest {
     public void setDescription(String description) {
         this.description = description;
     }
+
+
+    // =========================================================
+    // QUANTITY
+    // =========================================================
 
     public Integer getQuantity() {
         return quantity;
@@ -102,6 +273,24 @@ public class PurchaseRequest {
         this.quantity = quantity;
     }
 
+
+    // =========================================================
+    // AMOUNT
+    // =========================================================
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
+    }
+
+
+    // =========================================================
+    // CATEGORY
+    // =========================================================
+
     public String getCategory() {
         return category;
     }
@@ -109,6 +298,11 @@ public class PurchaseRequest {
     public void setCategory(String category) {
         this.category = category;
     }
+
+
+    // =========================================================
+    // PRIORITY
+    // =========================================================
 
     public Priority getPriority() {
         return priority;
@@ -118,6 +312,11 @@ public class PurchaseRequest {
         this.priority = priority;
     }
 
+
+    // =========================================================
+    // STATUS
+    // =========================================================
+
     public Status getStatus() {
         return status;
     }
@@ -125,6 +324,11 @@ public class PurchaseRequest {
     public void setStatus(Status status) {
         this.status = status;
     }
+
+
+    // =========================================================
+    // CURRENT LEVEL
+    // =========================================================
 
     public String getCurrentLevel() {
         return currentLevel;
@@ -134,6 +338,11 @@ public class PurchaseRequest {
         this.currentLevel = currentLevel;
     }
 
+
+    // =========================================================
+    // APPROVAL DATE
+    // =========================================================
+
     public LocalDateTime getApprovalDate() {
         return approvalDate;
     }
@@ -141,6 +350,37 @@ public class PurchaseRequest {
     public void setApprovalDate(LocalDateTime approvalDate) {
         this.approvalDate = approvalDate;
     }
+
+
+    // =========================================================
+    // PREVIOUS STATUS
+    // =========================================================
+
+    public String getPreviousStatus() {
+        return previousStatus;
+    }
+
+    public void setPreviousStatus(String previousStatus) {
+        this.previousStatus = previousStatus;
+    }
+
+
+    // =========================================================
+    // DECISION TIME
+    // =========================================================
+
+    public LocalDateTime getDecisionTime() {
+        return decisionTime;
+    }
+
+    public void setDecisionTime(LocalDateTime decisionTime) {
+        this.decisionTime = decisionTime;
+    }
+
+
+    // =========================================================
+    // EXPIRY DATE
+    // =========================================================
 
     public LocalDateTime getExpiryDate() {
         return expiryDate;
@@ -150,6 +390,11 @@ public class PurchaseRequest {
         this.expiryDate = expiryDate;
     }
 
+
+    // =========================================================
+    // CREATED DATE
+    // =========================================================
+
     public LocalDateTime getCreatedDate() {
         return createdDate;
     }
@@ -157,6 +402,26 @@ public class PurchaseRequest {
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
     }
+
+
+    // =========================================================
+    // MANAGER UNAVAILABLE SINCE
+    // =========================================================
+
+    public LocalDateTime getManagerUnavailableSince() {
+        return managerUnavailableSince;
+    }
+
+    public void setManagerUnavailableSince(
+            LocalDateTime managerUnavailableSince) {
+
+        this.managerUnavailableSince = managerUnavailableSince;
+    }
+
+
+    // =========================================================
+    // REMARKS
+    // =========================================================
 
     public String getRemarks() {
         return remarks;
@@ -167,43 +432,15 @@ public class PurchaseRequest {
     }
 
 
-    public Double getAmount() {
-        return amount;
+    // =========================================================
+    // EMERGENCY FLAG
+    // =========================================================
+
+    public Boolean getEmergencyFlag() {
+        return emergencyFlag;
     }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
-    }
-
-    public User getAssignedManager() {
-        return assignedManager;
-    }
-
-    public void setAssignedManager(User assignedManager) {
-        this.assignedManager = assignedManager;
-    }
-
-    public String getPreviousStatus() {
-        return previousStatus;
-    }
-
-    public void setPreviousStatus(String previousStatus) {
-        this.previousStatus = previousStatus;
-    }
-
-    public LocalDateTime getDecisionTime() {
-        return decisionTime;
-    }
-
-    public void setDecisionTime(LocalDateTime decisionTime) {
-        this.decisionTime = decisionTime;
-    }
-
-    public LocalDateTime getManagerUnavailableSince() {
-        return managerUnavailableSince;
-    }
-
-    public void setManagerUnavailableSince(LocalDateTime managerUnavailableSince) {
-        this.managerUnavailableSince = managerUnavailableSince;
+    public void setEmergencyFlag(Boolean emergencyFlag) {
+        this.emergencyFlag = emergencyFlag;
     }
 }
